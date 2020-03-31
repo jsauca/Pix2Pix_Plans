@@ -16,7 +16,6 @@ PREPROCESS = True
 BATCH_SIZE = 128
 OPTIMIZER = 'Adam'
 LEARNING_RATE = 0.0002
-
 """## Utils"""
 
 
@@ -26,24 +25,28 @@ def gen_image(arr):
     return plt
 
 
-class Data:
-    def __init__(self,
-                 preprocess=PREPROCESS):
-        if preprocess:
-            preprocessing = torchvision.transforms.Compose(
-                [torchvision.transforms.ToTensor()])
-        else:
-            preprocessing = None
-        self._dataset = torchvision.datasets.ImageFolder(
-            'data/', transform=preprocessing)
-        self._length = len(self._dataset)
+# class Data:
+#
+#     def __init__(self, preprocess=PREPROCESS):
+#         if preprocess:
+#             preprocessing = torchvision.transforms.Compose(
+#                 [torchvision.transforms.ToTensor()])
+#         else:
+#             preprocessing = None
+#         self._dataset = torchvision.datasets.ImageFolder(
+#             'data/images64/', transform=preprocessing)
+#         self._length = len(self._dataset)
+#
+#     def sample(self, num_samples):
+#         idxs = np.random.randint(self._length, size=num_samples)
+#         samples = self._dataset[idxs].unsqueeze(1)
+#         return samples
 
-    def sample(self, num_samples):
-        idxs = np.random.randint(self._length, size=num_samples)
-        samples = self._dataset[idxs].unsqueeze(1)
-        return samples
-
-
+preprocessing = torchvision.transforms.ToTensor()
+train_data = torchvision.datasets.ImageFolder('data/', transform=preprocessing)
+train_loader = torch.utils.data.DataLoader(train_data,
+                                           batch_size=BATCH_SIZE // 2,
+                                           shuffle=True)
 """## Networks"""
 
 
@@ -71,10 +74,12 @@ def create_deconv(in_features,
         deconv_layer = nn.Sequential(op, act)
     return deconv_layer
 
+
 # Generator
 
 
 class Generator(nn.Module):
+
     def __init__(self, noise_size=NOISE_SIZE):
         super(Generator, self).__init__()
         self._noise_size = noise_size
@@ -98,7 +103,8 @@ def create_conv(in_features,
                 kernel_size,
                 stride,
                 padding=1,
-                activation='lrelu', batch_norm=True):
+                activation='lrelu',
+                batch_norm=True):
     op = nn.Conv2d(in_features,
                    out_features,
                    kernel_size,
@@ -117,18 +123,25 @@ def create_conv(in_features,
         conv_layer = nn.Sequential(op, act)
     return conv_layer
 
+
 # Discriminator
 
 
 class Discriminator(nn.Module):
+
     def __init__(self):
         super(Discriminator, self).__init__()
         self._conv1 = create_conv(1, 128, 4, 2, batch_norm=False)
         self._conv2 = create_conv(128, 256, 4, 2)
         self._conv3 = create_conv(256, 512, 4, 2)
         self._conv4 = create_conv(512, 1024, 4, 2)
-        self._conv5 = create_conv(
-            1024, 1, 4, 2, padding=2, activation='sigmoid', batch_norm=False)
+        self._conv5 = create_conv(1024,
+                                  1,
+                                  4,
+                                  2,
+                                  padding=2,
+                                  activation='sigmoid',
+                                  batch_norm=False)
 
     def forward(self, x):
         x = self._conv1(x)
@@ -143,6 +156,7 @@ class Discriminator(nn.Module):
 
 
 class Trainer:
+
     def __init__(self,
                  data,
                  generator,
@@ -162,10 +176,10 @@ class Trainer:
             optimizer_class = optim.Adam
         elif optimizer == 'SGD':
             optimizer_class = optim.SGD
-        self._g_opt = optimizer_class(
-            self._g_net.parameters(), lr=learning_rate)
-        self._d_opt = optimizer_class(
-            self._d_net.parameters(), lr=learning_rate)
+        self._g_opt = optimizer_class(self._g_net.parameters(),
+                                      lr=learning_rate)
+        self._d_opt = optimizer_class(self._d_net.parameters(),
+                                      lr=learning_rate)
 
     def _g_step(self):
 
@@ -178,16 +192,16 @@ class Trainer:
         loss.backward()
         self._g_opt.step()
 
-    def _d_step(self):
-        noise = torch.randn(size=(self._batch_size // 2,
-                                  self._noise_size, 1, 1)).float()
-        labels_zeros = torch.zeros(
-            (self._batch_size // 2, 1), dtype=int).float()
+    def _d_step(self, x_real):
+        noise = torch.randn(size=(self._batch_size // 2, self._noise_size, 1,
+                                  1)).float()
+        labels_zeros = torch.zeros((self._batch_size // 2, 1),
+                                   dtype=int).float()
         labels_ones = torch.ones((self._batch_size // 2, 1), dtype=int).float()
         x_fake = self._g_net(noise)
         d_fake = self._d_net(x_fake.float())
         loss_fake = nn.BCELoss()(d_fake.unsqueeze(1), labels_zeros)
-        x_real = self._data.sample(self._batch_size // 2).double()
+        x_real = x_real.double()
         d_real = self._d_net(x_real.float())
 
         loss_real = nn.BCELoss()(d_real.unsqueeze(1), labels_ones)
@@ -196,9 +210,10 @@ class Trainer:
         loss.backward()
         self._d_opt.step()
 
-    def step(self):
-        self._g_step()
-        self._d_step()
+    def train(self):
+        for batch_idx, x_real in enumerate(self._data):
+            self._d_step(x_real)
+            self._g_step()
 
     def test(self):
         noise = torch.randn(size=(1, self._noise_size, 1, 1))
@@ -210,12 +225,9 @@ class Trainer:
 
 disc = Discriminator()
 gen = Generator()
-data = Data()
-trainer = Trainer(data, gen, disc)
+trainer = Trainer(train_loader, gen, disc)
 
-for it in range(1000):
+for epoch in range(10):
 
-    trainer.step()
-    if it % 100 == 0:
-        print('iteration_'.format(it))
-        trainer.test()
+    trainer.train()
+    trainer.test()
