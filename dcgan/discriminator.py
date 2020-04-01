@@ -35,7 +35,6 @@ class Discriminator(nn.Module):
 
     def __init__(self, name, conditional=False):
         self._name = name
-        self._input_shape = input_shape
         self._conditional = conditional
 
     def _forward(self):
