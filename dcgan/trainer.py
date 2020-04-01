@@ -1,6 +1,10 @@
 import torch
+import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import numpy as np
+import os
+from datetime import datetime
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if (use_cuda and ngpu > 0) else "cpu")
 from torch import autograd
@@ -8,11 +12,11 @@ from torch import autograd
 
 class LR_Scheduler:
 
-    def __init__(self, g_opt, d_opt, learning_rate_decay):
-        if decay_every is None:
+    def __init__(self, d_opt, g_opt, learning_rate_decay):
+        if learning_rate_decay is None or learning_rate_decay == 0.:
             self.step = self.dummy_step
         else:
-            lmbda = lambda epoch: learning_rate_decay
+            lr_lambda = lambda epoch: learning_rate_decay
             self.g_scheduler = optim.lr_scheduler.MultiplicativeLR(
                 g_opt, lr_lambda)
             self.d_scheduler = optim.lr_scheduler.MultiplicativeLR(
@@ -29,71 +33,69 @@ class LR_Scheduler:
 
 class Trainer:
 
-    def __init__(self,
-                 data,
-                 generator,
-                 discriminator,
-                 batch_size,
-                 optimizer,
-                 loss_type='minimax',
-                 learning_rate=None,
-                 learning_rate_decay=None,
-                 weight_decay=None,
-                 checkpoint_disc=None,
-                 checkpoint_gen=None):
-        self._batch_size = batch_size
+    def __init__(self, data, gen, disc, args):
+        self._args = args
         self._data = data
-        self._d_net = self._load_checkpoint(checkpoint_disc, discriminator)
-        self._g_net = self._load_checkpoint(checkpoint_gen, generator)
-        self._d_opt, self._g_opt = self._build_optimizer(
-            optimizer, learning_rate, weight_decay)
-        self._d_loss, self._g_loss = self._build_loss(loss_type)
-        self._lr_scheduler = self._build_scheduler(learning_rate_decay)
+        self._d_net = disc
+        self._g_net = gen
+        self._build_dir()
+        self._init_train()
+        self._load_checkpoints()
+        self._build_optimizer()
+        self._build_loss()
+        self._build_scheduler()
 
-    def _load_checkpoint(self, checkpoint, network):
+    def _init_train(self):
+        self._epoch = 0
+
+    def _build_dir(self):
+        self._dir = os.path.join(os.getcwd(), 'temp',
+                                 datetime.now().strftime('%m-%d_%H-%M-%S'))
+
+    def _load_checkpoints(self):
         if use_cuda:
-            network = network.cuda()
-        if checkpoint is not None:
-            network.load_state_dict(torch.load(checkpoint, map_location=device))
-        return network
+            self._d_net = self._d_net.cuda()
+            self._g_net = self._g_net.cuda()
+        if self._args.checkpoint_disc is not None:
+            self._d_net.load_state_dict(
+                torch.load(self._args.checkpoint_disc, map_location=device))
+        if self._args.checkpoint_gen is not None:
+            self._g_net.load_state_dict(
+                torch.load(self._args.checkpoint_gen, map_location=device))
 
-    def _build_optimizer(self, optimizer, learning_rate, weight_decay,
-                         learning_rate_decay):
-        if weight_decay is None:
-            weight_decay = 0.
-        if optimizer == 'Adam':
+    def _build_optimizer(self):
+        if self._args.optimizer == 'adam':
             optimizer_class = optim.Adam
-        elif optimizer == 'SGD':
+        elif self._args.optimizer == 'sgd':
             optimizer_class = optim.SGD
-        g_opt = optimizer_class(self._g_net.parameters(),
-                                lr=learning_rate,
-                                weight_decay=weight_decay)
-        d_opt = optimizer_class(self._d_net.parameters(),
-                                lr=learning_rate,
-                                weight_decay=weight_decay)
-        return d_opt, g_opt
+        self._g_opt = optimizer_class(self._g_net.parameters(),
+                                      lr=self._args.learning_rate,
+                                      weight_decay=self._args.weight_decay)
+        self._d_opt = optimizer_class(self._d_net.parameters(),
+                                      lr=self._args.learning_rate,
+                                      weight_decay=self._args.weight_decay)
 
-    def _build_scheduler(self, learning_rate_decay):
-        lr_scheduler = LR_Scheduler(self._g_opt, self._d_opt,
-                                    learning_rate_decay)
-        return lr_scheduler
+    def _build_scheduler(self):
+        self._lr_scheduler = LR_Scheduler(self._d_opt, self._g_opt,
+                                          self._args.learning_rate_decay)
 
-    def _build_loss(self, loss_type):
-        if loss_type == 'minimax':
+    def _build_loss(self):
+        if self._args.loss_type == 'minimax':
             criterion = nn.BCELoss()
 
             def loss_function(d_x, label):
                 batch_size = d_x.size(0)
                 labels = torch.full((batch_size,), label, device=device)
-                loss = criterion(d_x, labels)
-                return loss.mean()
+                loss = criterion(torch.sigmoid(d_x), labels)
+                return loss.mean(0)
 
-            def d_loss(d_real, d_fake):
+            def d_loss(d_real, d_fake, x_real, x_fake):
                 return loss_function(d_real, 1.) + loss_function(d_fake, 0.)
 
             def g_loss(d_fake):
                 return loss_function(d_fake, 1.)
-        elif loss_type == 'wasserstein':
+
+        elif self._args.loss_type == 'wasserstein':
 
             def gradient_penalty(x_real, x_fake):
                 batch_size = x_real.size(0)
@@ -104,13 +106,13 @@ class Trainer:
                 else:
                     alpha = torch.FloatTensor(batch_size, 1, 1, 1).uniform_(
                         0, 1).expand([batch_size, 3, 256, 256])
-                x_inter = alpha * x_fake + (1 - alpha) * x_real
+                x_inter = (1 - alpha) * x_real + alpha * x_fake
                 x_inter.requires_grad = True
                 d_inter = self._d_net(x_inter)
                 gradients = autograd.grad(outputs=d_inter,
                                           inputs=x_inter,
                                           grad_outputs=torch.ones(
-                                              d_inter.size()).cuda(),
+                                              d_inter.size()).to(device),
                                           create_graph=True,
                                           retain_graph=True,
                                           only_inputs=True)[0]
@@ -118,13 +120,21 @@ class Trainer:
                 gradient_penalty = ((gradients.norm(2, dim=1) - 1)**2).mean()
                 return gradient_penalty
 
-            def d_loss(x_real, x_fake):
-        return d_loss, g_loss
+            def d_loss(d_real, d_fake, x_real, x_fake):
+                loss = -d_real.mean(0) + d_fake.mean(0)
+                loss += gradient_penalty(x_real, x_fake)
+                return loss
+
+            def g_loss(d_fake):
+                return -d_fake.mean(0)
+
+        self._d_loss = d_loss
+        self._g_loss = g_loss
 
     def _g_step(self):
         self._d_net.eval()
         self._g_net.train()
-        x_fake = self._g_net(self._batch_size)
+        x_fake = self._g_net(self._args.batch_size)
         d_fake = self._d_net(x_fake)
         self._g_opt.zero_grad()
         loss = self._g_loss(d_fake)
@@ -134,19 +144,21 @@ class Trainer:
     def _d_step(self, x_real):
         self._d_net.train()
         self._g_net.eval()
-        x_fake = self._g_net(self._batch_size)
+        x_fake = self._g_net(self._args.batch_size)
         d_real, d_fake = self._d_net(x_real, x_fake)
         self._d_opt.zero_grad()
-        loss = self._d_loss(d_real, d_fake)
+        loss = self._d_loss(d_real, d_fake, x_real, x_fake)
         loss.backward()
         self._d_opt.step()
 
     def train(self):
-        for batch_idx, x_real in enumerate(self._data):
+        self._epoch += 1
+        for batch_idx, (x_real, _) in enumerate(self._data):
             self._d_step(x_real)
-            self._g_step()
-
-    def test(self):
-        noise = torch.randn(size=(1, self._noise_size, 1, 1))
-        x_fake = self._g_net(noise).squeeze().data.numpy()
-        gen_image(x_fake)
+            if np.random.uniform() < self._args.gen_prob:
+                self._g_step()
+        self.lr_scheduler.step()
+        epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
+        os.makedirs(epoch_dir)
+        ckp_dir = epoch_dir + '/checkpoint.pt'
+        torch.save(model.state_dict(), ckp_dir)

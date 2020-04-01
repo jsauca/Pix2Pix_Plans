@@ -35,15 +35,21 @@ def create_deconv(in_channels,
 class Generator(nn.Module):
 
     def __init__(self, name, noise_shape, conditional=False):
+        super(Generator, self).__init__()
         self._name = name
         self._noise_shape = noise_shape
         self._conditional = conditional
 
     def get_noise(self, batch_size, use_cuda=False):
-        size = [batch.size] + self._noise_shape
+        size = [batch_size] + self._noise_shape
         noise = torch.randn(size=size)
         if use_cuda:
             noise = noise.cuda()
+        if self.training:
+            noise.requires_grad_(True)
+        else:
+            with torch.no_grad():
+                noise = noise
         return noise
 
     def _forward(self):
@@ -54,20 +60,23 @@ class Generator(nn.Module):
             input = input_or_batch_size
             batch_size = input.size(0)
             noise = self.get_noise(batch_size)
-            return self._forward(input, noise)
+            generated = self._forward(input, noise)
         else:
             batch_size = input_or_batch_size
             noise = self.get_noise(batch_size)
-            return self._forward(noise)
+            generated = self._forward(noise)
+        if not self.training:
+            generated = generated.detach()
+        return generated
 
 
 class Gen_v0(Generator):
 
     def __init__(self, noise_size):
         super(Gen_v0, self).__init__(name='gen_v0',
-                                     noise_shape=[self._noise_size, 13, 13],
+                                     noise_shape=[noise_size, 13, 13],
                                      conditional=False)
-        self._deconv1 = create_deconv(self._noise_size, 1024, 4, 1, padding=0)
+        self._deconv1 = create_deconv(noise_size, 1024, 4, 1, padding=0)
         self._deconv2 = create_deconv(1024, 512, 4, 2)
         self._deconv3 = create_deconv(512, 256, 4, 2)
         self._deconv4 = create_deconv(256, 128, 4, 2)

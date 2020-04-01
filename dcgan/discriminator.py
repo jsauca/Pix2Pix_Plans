@@ -34,20 +34,21 @@ def create_conv(in_channels,
 class Discriminator(nn.Module):
 
     def __init__(self, name, conditional=False):
+        super(Discriminator, self).__init__()
         self._name = name
         self._conditional = conditional
 
     def _forward(self):
         raise NotImplementedError
 
-    def forward(self, *inputs):
-        if len(inputs) > 1:
-            return list(map(self._forward, inputs))
+    def forward(self, inputs, inputs_bis=None):
+        if inputs_bis == None:
+            return self._forward(inputs)
         else:
-            return self._forward(inputs[0])
+            return self._forward(inputs), self._forward(inputs_bis)
 
 
-class Disc_v0(nn.Module):
+class Disc_v0(Discriminator):
 
     def __init__(self):
         super(Disc_v0, self).__init__(name='disc_v0')
@@ -65,4 +66,6 @@ class Disc_v0(nn.Module):
         x = self._conv4(x)
         x = self._conv5(x)
         x = self._fc(x)
+        x = x.squeeze(1)
+        print(x.shape)
         return x
