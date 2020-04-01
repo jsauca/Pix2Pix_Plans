@@ -87,7 +87,7 @@ class Generator(nn.Module):
         self._deconv2 = create_deconv(1024, 512, 4, 2)
         self._deconv3 = create_deconv(512, 256, 4, 2)
         self._deconv4 = create_deconv(256, 128, 4, 2)
-        self._deconv5 = create_deconv(128, 1, 4, 2, 3, activation='tanh')
+        self._deconv5 = create_deconv(64, 3, 4, 2, 3, activation='tanh')
 
     def forward(self, z):
         x = self._deconv1(z)
@@ -131,7 +131,7 @@ class Discriminator(nn.Module):
 
     def __init__(self):
         super(Discriminator, self).__init__()
-        self._conv1 = create_conv(1, 128, 4, 2, batch_norm=False)
+        self._conv1 = create_conv(3, 64, 4, 2, batch_norm=False)
         self._conv2 = create_conv(128, 256, 4, 2)
         self._conv3 = create_conv(256, 512, 4, 2)
         self._conv4 = create_conv(512, 1024, 4, 2)
