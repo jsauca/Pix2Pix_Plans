@@ -16,7 +16,7 @@ parser.add_argument('--noise_size',
 
 ## Parameters for trainer
 parser.add_argument('--data_folder',
-                    help='folder for training data.',
+                    help='folder for training data',
                     type=str,
                     default='data/')
 parser.add_argument('--batch_size',
