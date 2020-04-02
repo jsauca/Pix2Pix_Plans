@@ -1,10 +1,8 @@
 import argparse
 
 # DCGAN Model
-from dcgan.generator import *
-from dcgan.discriminator import *
-from dcgan.trainer import *
-from dcgan.utils import *
+from dcgan.utils import get_dataset, get_discriminator, get_generator
+from dcgan.trainer import Trainer
 
 # Settings
 parser = argparse.ArgumentParser()
@@ -43,7 +41,6 @@ parser.add_argument('--noise_size',
                     help='size of latent space',
                     type=int,
                     default=100)
-
 ## Parameters for trainer
 parser.add_argument('--data_folder',
                     help='folder for training data',
@@ -77,11 +74,6 @@ parser.add_argument('--weight_decay',
                     help='weight decay for optimizer',
                     type=float,
                     default=0.)
-
-parser.add_argument('--checkpoint_gen',
-                    help='checkpoint for generator',
-                    type=str,
-                    default=None)
 args = parser.parse_args()
 
 data = get_dataset(args)
