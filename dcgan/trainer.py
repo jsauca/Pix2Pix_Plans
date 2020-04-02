@@ -6,7 +6,7 @@ import numpy as np
 import os
 from datetime import datetime
 use_cuda = torch.cuda.is_available()
-device = torch.device("cuda:0" if (use_cuda and ngpu > 0) else "cpu")
+device = torch.device("cuda:0" if use_cuda else "cpu")
 from torch import autograd
 
 

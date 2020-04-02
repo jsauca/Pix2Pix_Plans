@@ -95,9 +95,9 @@ class UpSampleConv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, bias=True):
         super(UpSampleConv, self).__init__()
         self._depth_to_space = DepthToSpace(2)
-        self._conv = Conv2d(in_channels, out_channels, kernel_size, 1,
-                            int((kernel_size - 1) / 2), 'id', False, False,
-                            bias)
+        self._conv = Conv_2D(in_channels, out_channels, kernel_size, 1,
+                             int((kernel_size - 1) / 2), 'id', False, False,
+                             bias)
 
     def forward(self, x):
         x = torch.cat((x, x, x, x), 1)
@@ -119,7 +119,7 @@ class ResidualBlock(nn.Module):
             self._conv_layers = nn.Sequential(*[
                 nn.LayerNorm([in_channels, scale, scale]),
                 nn.ReLU(),
-                Conv_2D(in_channels, out_channels, kernel_size, 1,
+                Conv_2D(in_channels, in_channels, kernel_size, 1,
                         int((kernel_size - 1) / 2), 'id', False, False, False),
                 nn.LayerNorm([in_channels, scale, scale]),
                 nn.ReLU(),
@@ -127,10 +127,10 @@ class ResidualBlock(nn.Module):
                         int((kernel_size - 1) / 2), 'id', False, False, True),
                 MeanPool()
             ])
-            conv_shortcut = nn.Sequential(*[
-                MeanPool(),
+            self._conv_shortcut = nn.Sequential(*[
                 Conv_2D(in_channels, out_channels, kernel_size, 1,
-                        int((kernel_size - 1) / 2), 'id', False, False, True)
+                        int((kernel_size - 1) / 2), 'id', False, False, True),
+                MeanPool()
             ])
         elif resample == 'up':
             self._conv_layers = nn.Sequential(*[

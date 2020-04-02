@@ -5,9 +5,9 @@ from .layers import *
 
 class Discriminator(nn.Module):
 
-    def __init__(self, name, conditional=False):
+    def __init__(self, version, conditional=False):
         super(Discriminator, self).__init__()
-        self._name = name
+        self._version = version
         self._conditional = conditional
 
     def _forward(self):
@@ -23,20 +23,43 @@ class Discriminator(nn.Module):
 class Disc_v0(Discriminator):
 
     def __init__(self, channels, scale):
-        super(Disc_v0, self).__init__(name='disc_v0')
-        layers = [
+        super(Disc_v0, self).__init__(version=0)
+        self._scale = scale
+        self._channels = channels
+        self._conv_layers = nn.Sequential(*[
             Conv_2D(channels, scale, 4, 2, 1, 'lrelu', batch_norm=False),
             Conv_2D(scale, 2 * scale, 4, 2, 1, 'lrelu'),
             Conv_2D(2 * scale, 4 * scale, 4, 2, 1, 'lrelu'),
             Conv_2D(4 * scale, 8 * scale, 4, 2, 1, 'lrelu'),
             Conv_2D(8 * scale, 1, 4, 1, 0, 'id', batch_norm=False)
-        ]
-
-        self._layers = nn.ModuleList(layers)
+        ])
 
     def _forward(self, image):
         x = image
-        for layer in self._layers:
-            x = layer(x)
+        x = self._conv_layers(x)
         x = x[:, 0, 0, 0]
+        return x
+
+
+class Disc_v1(Discriminator):
+
+    def __init__(self, channels, scale):
+        super(Disc_v1, self).__init__(version=1)
+        self._scale = scale
+        self._channels = channels
+        self._conv_layers = nn.Sequential(*[
+            Conv_2D(channels, scale, 3, 1, 1, 'id', False, False, True),
+            ResidualBlock(scale, 2 * scale, 3, 'down', scale),
+            ResidualBlock(2 * scale, 4 * scale, 3, 'down', int(scale / 2)),
+            ResidualBlock(4 * scale, 8 * scale, 3, 'down', int(scale / 4)),
+            ResidualBlock(8 * scale, 8 * scale, 3, 'down', int(scale / 8)),
+        ])
+        self._fc = nn.Linear(scale * scale * 2, 1)
+
+    def _forward(self, image):
+        x = image
+        x = self._conv_layers(x)
+        x = x.view(-1, self._scale * self._scale * 2)
+        x = self._fc(x)
+        x = x[:, 0]
         return x

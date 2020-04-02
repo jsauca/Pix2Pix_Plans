@@ -15,7 +15,7 @@ parser.add_argument('--channels',
 parser.add_argument('--disc_version',
                     help='version for discriminator',
                     type=int,
-                    default=0)
+                    default=1)
 parser.add_argument('--disc_scale',
                     help='scale of hidden dimensions',
                     type=int,
@@ -28,7 +28,7 @@ parser.add_argument('--disc_checkpoint',
 parser.add_argument('--gen_version',
                     help='version for discriminator',
                     type=int,
-                    default=0)
+                    default=1)
 parser.add_argument('--gen_scale',
                     help='scale of hidden dimensions',
                     type=int,

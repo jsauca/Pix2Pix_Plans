@@ -1,10 +1,10 @@
 import torch
 import torchvision
 from torchvision import transforms
-from .generator import Gen_v0
-from .discriminator import Disc_v0
+from .generator import *
+from .discriminator import *
 use_cuda = torch.cuda.is_available()
-device = torch.device("cuda:0" if (use_cuda and ngpu > 0) else "cpu")
+device = torch.device("cuda:0" if use_cuda else "cpu")
 
 
 def get_dataset(args):
