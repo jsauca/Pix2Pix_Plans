@@ -1,61 +1,51 @@
 import torch
 import torch.nn as nn
 
-
-def create_deconv(in_channels,
-                  out_channels,
-                  kernel_size,
-                  stride,
-                  padding=1,
-                  activation='relu',
-                  batch_norm=True,
-                  bias=False):
-    op = nn.ConvTranspose2d(in_channels,
-                            out_channels,
-                            kernel_size,
-                            stride=stride,
-                            padding=padding,
-                            bias=bias)
-
-    if activation == 'lrelu':
-        act = nn.LeakyReLU(0.2, inplace=True)
-    elif activation == 'tanh':
-        act = nn.Tanh()
-    elif activation == 'relu':
-        act = nn.ReLU(True)
-    if batch_norm:
-        bn = nn.BatchNorm2d(out_channels)
-        deconv_layer = nn.Sequential(op, bn, act)
-    else:
-        deconv_layer = nn.Sequential(op, act)
-    return deconv_layer
+activations = {
+    'relu': nn.ReLU(True),
+    'lrelu': nn.LeakyReLU(0.2, inplace=True),
+    'tanh': nn.Tanh(),
+    'sigmoid': nn.Sigmoid(),
+    'id': nn.Identity()
+}
 
 
-def create_conv(in_channels,
-                out_channels,
-                kernel_size,
-                stride,
-                padding=1,
-                activation='lrelu',
-                batch_norm=True,
-                bias=False):
-    op = nn.Conv2d(in_channels,
-                   out_channels,
-                   kernel_size,
-                   stride=stride,
-                   padding=padding,
-                   bias=bias)
+class Conv_2D(nn.Module):
 
-    if activation == 'lrelu':
-        act = nn.LeakyReLU(0.2, inplace=True)
-    elif activation == 'sigmoid':
-        act = nn.Sigmoid()
-    elif activation == 'relu':
-        act = nn.ReLU(True)
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 kernel_size,
+                 stride,
+                 padding=1,
+                 activation='relu',
+                 batch_norm=True,
+                 transpose=False,
+                 bias=False):
+        super(Conv_2D, self).__init__()
+        if not transpose:
+            self._op = nn.Conv2d(in_channels,
+                                 out_channels,
+                                 kernel_size,
+                                 stride=stride,
+                                 padding=padding,
+                                 bias=bias)
+        else:
+            self._op = nn.ConvTranspose2d(in_channels,
+                                          out_channels,
+                                          kernel_size,
+                                          stride=stride,
+                                          padding=padding,
+                                          bias=bias)
 
-    if batch_norm == True:
-        bn = nn.BatchNorm2d(out_channels)
-        conv_layer = nn.Sequential(op, bn, act)
-    else:
-        conv_layer = nn.Sequential(op, act)
-    return conv_layer
+        self._act = activations[activation]
+        if batch_norm:
+            self._bn = nn.BatchNorm2d(out_channels)
+        else:
+            self._bn = nn.Identity()
+
+    def forward(self, x):
+        x = self._op(x)
+        x = self._bn(x)
+        x = self._act(x)
+        return x

@@ -24,16 +24,19 @@ class Disc_v0(Discriminator):
 
     def __init__(self, channels, scale):
         super(Disc_v0, self).__init__(name='disc_v0')
-        self._conv1 = create_conv(channels, scale, 4, 2, 1, batch_norm=False)
-        self._conv2 = create_conv(scale, 2 * scale, 4, 2, 1)
-        self._conv3 = create_conv(2 * scale, 4 * scale, 4, 2, 1)
-        self._conv4 = create_conv(4 * scale, 8 * scale, 4, 2, 1)
-        self._conv5 = create_conv(8 * scale, 1, 4, 1, 0, batch_norm=False)
+        layers = [
+            Conv_2D(channels, scale, 4, 2, 1, 'lrelu', batch_norm=False),
+            Conv_2D(scale, 2 * scale, 4, 2, 1, 'lrelu'),
+            Conv_2D(2 * scale, 4 * scale, 4, 2, 1, 'lrelu'),
+            Conv_2D(4 * scale, 8 * scale, 4, 2, 1, 'lrelu'),
+            Conv_2D(8 * scale, 1, 4, 1, 0, 'id', batch_norm=False)
+        ]
 
-    def _forward(self, x):
-        x = self._conv1(x)
-        x = self._conv2(x)
-        x = self._conv3(x)
-        x = self._conv4(x)
-        x = self._conv5(x)[:, 0, 0, 0]
+        self._layers = nn.ModuleList(layers)
+
+    def _forward(self, image):
+        x = image
+        for layer in self._layers:
+            x = layer(x)
+        x = x[:, 0, 0, 0]
         return x
