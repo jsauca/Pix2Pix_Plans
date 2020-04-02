@@ -46,7 +46,7 @@ class DepthToSpace(nn.Module):
                             batch_size, output_height, output_width,
                             output_depth)
         x = x.permute(0, 3, 1, 2)
-        return output
+        return x
 
 
 class Conv_2D(nn.Module):
