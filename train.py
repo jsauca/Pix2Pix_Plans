@@ -1,7 +1,7 @@
 from data import get_dataset
 from dcgan import get_discriminator, get_generator
 from procedures import get_trainer
-from options import *
+from options import get_train_args
 
 args = get_train_args()
 data = get_dataset(args)
