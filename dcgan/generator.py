@@ -47,17 +47,14 @@ class Gen_v0(Generator):
         super(Gen_v0, self).__init__(name='gen_v0',
                                      noise_shape=[noise_size, 1, 1],
                                      conditional=False)
-        layers = [
+        self._layers = nn.Sequential(*[
             Conv_2D(noise_size, 8 * scale, 4, 1, 0, 'relu', transpose=True),
             Conv_2D(8 * scale, 4 * scale, 4, 2, 1, 'relu', transpose=True),
             Conv_2D(4 * scale, 2 * scale, 4, 2, 1, 'relu', transpose=True),
             Conv_2D(2 * scale, scale, 4, 2, 1, 'relu', transpose=True),
             Conv_2D(scale, channels, 4, 2, 1, 'tanh', False, transpose=True)
-        ]
-        self._layers = nn.ModuleList(layers)
+        ])
 
-    def _forward(self, noise):
-        x = noise
-        for layer in self._layers:
-            x = layer(x)
+    def _forward(self, z):
+        x = self._layers(z)
         return x
