@@ -36,11 +36,10 @@ class Trainer:
     def __init__(self, data, gen, disc, args):
         self._args = args
         self._data = data
-        self._d_net = disc
-        self._g_net = gen
+        self._d_net = disc.to(device)
+        self._g_net = gen.to(device)
         self._build_dir()
         self._init_train()
-        self._load_checkpoints()
         self._build_optimizer()
         self._build_loss()
         self._build_scheduler()
@@ -51,17 +50,6 @@ class Trainer:
     def _build_dir(self):
         self._dir = os.path.join(os.getcwd(), 'temp',
                                  datetime.now().strftime('%m-%d_%H-%M-%S'))
-
-    def _load_checkpoints(self):
-        if use_cuda:
-            self._d_net = self._d_net.cuda()
-            self._g_net = self._g_net.cuda()
-        if self._args.checkpoint_disc is not None:
-            self._d_net.load_state_dict(
-                torch.load(self._args.checkpoint_disc, map_location=device))
-        if self._args.checkpoint_gen is not None:
-            self._g_net.load_state_dict(
-                torch.load(self._args.checkpoint_gen, map_location=device))
 
     def _build_optimizer(self):
         if self._args.optimizer == 'adam':
@@ -105,7 +93,7 @@ class Trainer:
                         1).uniform_(0, 1).expand([batch_size, 3, 256, 256])
                 else:
                     alpha = torch.FloatTensor(batch_size, 1, 1, 1).uniform_(
-                        0, 1).expand([batch_size, 3, 256, 256])
+                        0, 1).expand([batch_size, 3, 64, 64])
                 x_inter = (1 - alpha) * x_real + alpha * x_fake
                 x_inter.requires_grad = True
                 d_inter = self._d_net(x_inter)
@@ -154,6 +142,7 @@ class Trainer:
     def train(self):
         self._epoch += 1
         for batch_idx, (x_real, _) in enumerate(self._data):
+            print(batch_idx)
             self._d_step(x_real)
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()

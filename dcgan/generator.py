@@ -1,35 +1,6 @@
-import numpy as np
 import torch
 import torch.nn as nn
-import torchvision
-import torch.optim as optim
-
-
-def create_deconv(in_channels,
-                  out_channels,
-                  kernel_size,
-                  stride,
-                  padding=1,
-                  activation='lrelu',
-                  batch_norm=True):
-    op = nn.ConvTranspose2d(in_channels,
-                            out_channels,
-                            kernel_size,
-                            stride=stride,
-                            padding=padding)
-
-    if activation == 'lrelu':
-        act = nn.LeakyReLU(negative_slope=0.2)
-    elif activation == 'tanh':
-        act = nn.Tanh()
-    elif activation == 'relu':
-        act = nn.ReLU()
-    if batch_norm:
-        bn = nn.BatchNorm2d(out_channels)
-        deconv_layer = nn.Sequential(op, bn, act)
-    else:
-        deconv_layer = nn.Sequential(op, act)
-    return deconv_layer
+from .layers import *
 
 
 class Generator(nn.Module):
@@ -72,15 +43,15 @@ class Generator(nn.Module):
 
 class Gen_v0(Generator):
 
-    def __init__(self, noise_size):
+    def __init__(self, noise_size, channels, scale):
         super(Gen_v0, self).__init__(name='gen_v0',
-                                     noise_shape=[noise_size, 13, 13],
+                                     noise_shape=[noise_size, 1, 1],
                                      conditional=False)
-        self._deconv1 = create_deconv(noise_size, 1024, 4, 1, padding=0)
-        self._deconv2 = create_deconv(1024, 512, 4, 2)
-        self._deconv3 = create_deconv(512, 256, 4, 2)
-        self._deconv4 = create_deconv(256, 128, 4, 2)
-        self._deconv5 = create_deconv(128, 3, 4, 2, activation='tanh')
+        self._deconv1 = create_deconv(noise_size, 8 * scale, 4, 1, 0)
+        self._deconv2 = create_deconv(8 * scale, 4 * scale, 4, 2, 1)
+        self._deconv3 = create_deconv(4 * scale, 2 * scale, 4, 2, 1)
+        self._deconv4 = create_deconv(2 * scale, scale, 4, 2, 1)
+        self._deconv5 = create_deconv(scale, channels, 4, 2, 1, 'tanh', False)
 
     def _forward(self, noise):
         z = noise

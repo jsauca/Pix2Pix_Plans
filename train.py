@@ -8,7 +8,37 @@ from dcgan.utils import *
 
 # Settings
 parser = argparse.ArgumentParser()
-## Parameters for generator
+## Parameters for networks
+parser.add_argument('--channels',
+                    help='number of channels for generated images',
+                    type=int,
+                    default=3)
+### Parameters for discriminator
+parser.add_argument('--disc_version',
+                    help='version for discriminator',
+                    type=int,
+                    default=0)
+parser.add_argument('--disc_scale',
+                    help='scale of hidden dimensions',
+                    type=int,
+                    default=64)
+parser.add_argument('--disc_checkpoint',
+                    help='checkpoint for discriminator',
+                    type=str,
+                    default=None)
+### Parameters for generator
+parser.add_argument('--gen_version',
+                    help='version for discriminator',
+                    type=int,
+                    default=0)
+parser.add_argument('--gen_scale',
+                    help='scale of hidden dimensions',
+                    type=int,
+                    default=64)
+parser.add_argument('--gen_checkpoint',
+                    help='checkpoint for discriminator',
+                    type=str,
+                    default=None)
 parser.add_argument('--noise_size',
                     help='size of latent space',
                     type=int,
@@ -47,18 +77,15 @@ parser.add_argument('--weight_decay',
                     help='weight decay for optimizer',
                     type=float,
                     default=0.)
-parser.add_argument('--checkpoint_disc',
-                    help='checkpoint for discriminator',
-                    type=str,
-                    default=None)
+
 parser.add_argument('--checkpoint_gen',
                     help='checkpoint for generator',
                     type=str,
                     default=None)
 args = parser.parse_args()
 
-data = build_dataset(args.data_folder, args.batch_size)
-disc = Disc_v0()
-gen = Gen_v0(args.noise_size)
+data = get_dataset(args)
+disc = get_discriminator(args)
+gen = get_generator(args)
 trainer = Trainer(data, gen, disc, args)
 trainer.train()
