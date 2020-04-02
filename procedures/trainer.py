@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from torch import autograd
 import numpy as np
 import os
 from datetime import datetime
+
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
-from torch import autograd
 
 
 class LR_Scheduler:
@@ -50,6 +51,7 @@ class Trainer:
     def _build_dir(self):
         self._dir = os.path.join(os.getcwd(), 'temp',
                                  datetime.now().strftime('%m-%d_%H-%M-%S'))
+        os.makedirs(self._dir)
 
     def _build_optimizer(self):
         if self._args.optimizer == 'adam':
