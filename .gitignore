@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+rtv/checkpoints/drn_d_54-0e0534ff.pth
+rtv/checkpoints/rtv.pth
