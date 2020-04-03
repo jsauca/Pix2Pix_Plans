@@ -17,6 +17,7 @@ class Discriminator(nn.Module):
         if inputs_bis == None:
             return self._forward(inputs)
         else:
+            ## TO DO : SPEED UP THIS
             return self._forward(inputs), self._forward(inputs_bis)
 
 
