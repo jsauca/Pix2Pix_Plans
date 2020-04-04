@@ -18,9 +18,9 @@ class LR_Scheduler:
             self.step = self.dummy_step
         else:
             lr_lambda = lambda epoch: learning_rate_decay
-            self.g_scheduler = optim.lr_scheduler.MultiplicativeLR(
+            self._g_scheduler = optim.lr_scheduler.MultiplicativeLR(
                 g_opt, lr_lambda)
-            self.d_scheduler = optim.lr_scheduler.MultiplicativeLR(
+            self._d_scheduler = optim.lr_scheduler.MultiplicativeLR(
                 d_opt, lr_lambda)
             self.step = self.decay_step
 
@@ -28,8 +28,8 @@ class LR_Scheduler:
         return None
 
     def decay_step(self):
-        self.g_scheduler.step()
-        self.d_scheduler.step()
+        self._g_scheduler.step()
+        self._d_scheduler.step()
 
 
 class Trainer:
@@ -144,8 +144,7 @@ class Trainer:
     def train(self):
         self._epoch += 1
         for batch_idx, (x_real, _) in enumerate(self._data):
-            print(batch_idx)
-            self._d_step(x_real)
+            self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
         self.lr_scheduler.step()

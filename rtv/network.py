@@ -3,25 +3,23 @@ from torch import nn
 from .layers import *
 
 
-class Model(nn.Module):
+class RasterToVector(nn.Module):
 
-    def __init__(self, options):
-        super(Model, self).__init__()
-
-        self.options = options
+    def __init__(self, height=256, width=256):
+        super(RasterToVector, self).__init__()
         self.drn = drn_d_54(pretrained=True,
                             out_map=32,
                             num_classes=-1,
                             out_middle=False)
-        self.pyramid = PyramidModule(options, 512, 128)
+        self.height = height
+        self.width = width
+        self.pyramid = PyramidModule(512, 128)
         self.feature_conv = ConvBlock(1024, 512)
         self.segmentation_pred = nn.Conv2d(512,
                                            NUM_CORNERS + NUM_ICONS + 2 +
                                            NUM_ROOMS + 2,
                                            kernel_size=1)
-        self.upsample = torch.nn.Upsample(size=(options.height, options.width),
-                                          mode='bilinear')
-        return
+        self.upsample = torch.nn.Upsample(size=(height, width), mode='bilinear')
 
     def forward(self, inp):
         features = self.drn(inp)
