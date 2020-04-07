@@ -1,6 +1,8 @@
 import torch
 from .generator import *
 from .discriminator import *
+from .trainer import Trainer
+
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
 
@@ -21,3 +23,7 @@ def get_generator(args):
         g_net.load_state_dict(
             torch.load(args.gen_checkpoint, map_location=device))
     return g_net
+
+
+def get_trainer(data, gen, disc, train_args):
+    return Trainer(data, gen, disc, train_args)

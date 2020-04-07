@@ -1,4 +1,3 @@
-from .drn import drn_d_54
 from torch import nn
 from .layers import *
 
