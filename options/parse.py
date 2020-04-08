@@ -7,7 +7,7 @@ def options_data(parser):
     parser.add_argument('--data_folder',
                         help='folder for training data',
                         type=str,
-                        default='data/')
+                        default='dataset/')
     parser.add_argument('--data_normalize',
                         help='normalize data during preprocessing',
                         type=bool,
@@ -80,3 +80,11 @@ def options_trainer(parser):
                         help='weight decay for optimizer',
                         type=float,
                         default=0.)
+    parser.add_argument('--num_samples',
+                        help='number of samples for tester',
+                        type=int,
+                        default=8 * 8)
+    parser.add_argument('--debug',
+                        help='set to true for debug',
+                        type=bool,
+                        default=True)

@@ -1,11 +1,21 @@
-from data import get_dataset
-from dcgan import get_discriminator, get_generator
-from procedures import get_trainer
-from options import get_train_args
+import dataset, dcgan, options
 
-args = get_train_args()
-data = get_dataset(args)
-disc = get_discriminator(args)
-gen = get_generator(args)
-trainer = get_trainer(data, gen, disc, args)
-trainer.train()
+### Options
+args = options.get_train_args()
+
+### Data
+data = dataset.get_dataset(args)
+
+### Discriminator
+disc = dcgan.get_discriminator(args)
+
+### Generator
+gen = dcgan.get_generator(args)
+
+### Trainer
+trainer = dcgan.get_trainer(data, gen, disc, args)
+for epoch in range(10):
+    trainer.train()
+    trainer.save_checkpoints()
+    samples = trainer.test()
+    trainer.save_samples(samples)

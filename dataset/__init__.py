@@ -23,4 +23,7 @@ def get_dataset(args):
                                        batch_size=args.batch_size,
                                        shuffle=True,
                                        drop_last=True)
+    print('* Loading dataset ...')
+    print('----> Length = {}'.format(len(data)))
+    print('----> Preprocess = {} + {}'.format('normalize', 'resize 256x256'))
     return data

@@ -5,8 +5,10 @@ import os
 
 
 def load_args(path):
+    parser = argparse.ArgumentParser()
+    args = parser.parse_args()
     with open(path, 'r') as f:
-        args = json.load(f)
+        args.__dict__ = json.load(f)
     return args
 
 
@@ -22,4 +24,7 @@ def get_train_args():
     options_gen(parser)
     options_trainer(parser)
     args = parser.parse_args()
+    print('* Loading options ...')
+    for arg, value in args.__dict__.items():
+        print('----> {} = {}'.format(arg, value))
     return args

@@ -6,6 +6,7 @@ from torch import autograd
 import numpy as np
 import os
 from datetime import datetime
+import torchvision.utils as vutils
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
@@ -35,6 +36,7 @@ class LR_Scheduler:
 class Trainer:
 
     def __init__(self, data, gen, disc, args):
+        print('* Building trainer ...')
         self._args = args
         self._data = data
         self._d_net = disc.to(device)
@@ -51,6 +53,7 @@ class Trainer:
     def _build_dir(self):
         self._dir = os.path.join(os.getcwd(), 'temp',
                                  datetime.now().strftime('%m-%d_%H-%M-%S'))
+        print('----> Creating directory = {}'.format(self._dir))
         os.makedirs(self._dir)
 
     def _build_optimizer(self):
@@ -143,12 +146,45 @@ class Trainer:
 
     def train(self):
         self._epoch += 1
+        if self._epoch == 1:
+            print('* Begin training ...')
+        print('--> Training epoch = {} ...'.format(self._epoch))
         for batch_idx, (x_real, _) in enumerate(self._data):
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-        self.lr_scheduler.step()
-        epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
-        os.makedirs(epoch_dir)
-        ckp_dir = epoch_dir + '/checkpoint.pt'
-        torch.save(model.state_dict(), ckp_dir)
+            if self._args.debug:
+                break
+        self._lr_scheduler.step()
+        self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
+        print('--> Training epoch = {} done !'.format(self._epoch))
+        os.makedirs(self._epoch_dir)
+        self._epoch_dir += '/'
+
+    def save_checkpoints(self, d_save=False, g_save=True):
+        if d_save:
+            path = self._epoch_dir + 'disc_checkpoint.pt'
+            print('--> Saving discriminator checkpoint = {} ...'.format(path))
+            torch.save(self._d_net.state_dict(), path)
+        if g_save:
+            path = self._epoch_dir + 'gen_checkpoint.pt'
+            print('--> Saving generator checkpoint = {} ...'.format(path))
+            torch.save(self._g_net.state_dict(), path)
+
+    def test(self, to_numpy=False):
+        print('--> Generating {} samples ...'.format(self._args.num_samples))
+        with torch.no_grad():
+            samples = [
+                self._g_net(1).squeeze(0) for _ in range(self._args.num_samples)
+            ]
+            samples = self._g_net(self._args.num_samples)
+        if to_numpy:
+            samples = [sample.detach().cpu() for sample in samples]
+        return samples
+
+    def save_samples(self, samples, nrow=8, normalize=True, padding=2):
+        print('--> Saving samples = {}'.format(self._epoch_dir))
+        vutils.save_image(samples, self._epoch_dir + 'grid.png')
+        for sample_idx, sample in enumerate(samples):
+            vutils.save_image(
+                sample, self._epoch_dir + 'sample_{}.png'.format(sample_idx))
