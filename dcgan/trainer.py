@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch import autograd
 import numpy as np
 import os
+from tqdm import tqdm
 from datetime import datetime
 import torchvision.utils as vutils
 
@@ -149,12 +150,13 @@ class Trainer:
         if self._epoch == 1:
             print('* Begin training ...')
         print('--> Training epoch = {} ...'.format(self._epoch))
-        for batch_idx, (x_real, _) in enumerate(self._data):
+        for batch_idx, (x_real, _) in tqdm(enumerate(self._data),
+                                           total=len(self._data)):
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-            if self._args.debug:
-                break
+            # if self._args.debug:
+            #     break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))

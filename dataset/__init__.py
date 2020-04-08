@@ -22,7 +22,8 @@ def get_dataset(args):
     data = torch.utils.data.DataLoader(data,
                                        batch_size=args.batch_size,
                                        shuffle=True,
-                                       drop_last=True)
+                                       drop_last=True,
+                                       num_workers=0)
     print('* Loading dataset ...')
     print('----> Length = {}'.format(len(data)))
     print('----> Preprocess = {} + {}'.format('normalize', 'resize 256x256'))
