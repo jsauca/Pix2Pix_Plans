@@ -3,7 +3,7 @@ def options_data(parser):
     parser.add_argument('--channels',
                         help='number of channels for generated images',
                         type=int,
-                        default=3)
+                        default=1)
     parser.add_argument('--data_folder',
                         help='folder for training data',
                         type=str,
