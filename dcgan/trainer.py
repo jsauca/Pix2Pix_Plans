@@ -155,8 +155,8 @@ class Trainer:
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-            # if self._args.debug:
-            #     break
+            if self._args.debug and batch_idx > 10:
+                break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
@@ -164,11 +164,11 @@ class Trainer:
         self._epoch_dir += '/'
 
     def save_checkpoints(self, d_save=False, g_save=True):
-        if d_save:
+        if d_save and not self._args.debug:
             path = self._epoch_dir + 'disc_checkpoint.pt'
             print('--> Saving discriminator checkpoint = {} ...'.format(path))
             torch.save(self._d_net.state_dict(), path)
-        if g_save:
+        if g_save and not self._args.debug:
             path = self._epoch_dir + 'gen_checkpoint.pt'
             print('--> Saving generator checkpoint = {} ...'.format(path))
             torch.save(self._g_net.state_dict(), path)
@@ -187,6 +187,8 @@ class Trainer:
     def save_samples(self, samples, nrow=8, normalize=True, padding=2):
         print('--> Saving samples = {}'.format(self._epoch_dir))
         vutils.save_image(samples, self._epoch_dir + 'grid.png')
-        for sample_idx, sample in enumerate(samples):
-            vutils.save_image(
-                sample, self._epoch_dir + 'sample_{}.png'.format(sample_idx))
+        if not self._args.debug:
+            for sample_idx, sample in enumerate(samples):
+                vutils.save_image(
+                    sample,
+                    self._epoch_dir + 'sample_{}.png'.format(sample_idx))
