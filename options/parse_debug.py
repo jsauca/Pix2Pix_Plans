@@ -55,7 +55,7 @@ def options_trainer(parser):
     parser.add_argument('--batch_size',
                         help='batch size for training',
                         type=int,
-                        default=128)
+                        default=4)
     parser.add_argument('--gen_prob',
                         help='probability/frequency of training generator',
                         type=float,
@@ -83,7 +83,7 @@ def options_trainer(parser):
     parser.add_argument('--num_samples',
                         help='number of samples for tester',
                         type=int,
-                        default=8 * 2)
+                        default=8 * 8)
     parser.add_argument('--debug',
                         help='set to true for debug',
                         type=bool,

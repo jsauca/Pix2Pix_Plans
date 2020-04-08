@@ -9,7 +9,7 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 def get_dataset(args):
     preprocessing = []
     if args.channels == 1 :
-        preprocessing = [transforms.Grayscale(num_output_channels=1)]
+        preprocessing += [transforms.Grayscale(num_output_channels=1)]
 
     preprocessing += [
         transforms.Resize(64),
