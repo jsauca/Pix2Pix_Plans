@@ -13,10 +13,10 @@ class Generator(nn.Module):
         self._noise_shape = noise_shape
         self._conditional = conditional
 
-    def get_noise(self, batch_size):
+    def get_noise(self, batch_size, training):
         size = [batch_size] + self._noise_shape
         noise = torch.randn(size=size).to(device)
-        if self.training:
+        if training:
             noise.requires_grad_(True)
         else:
             with torch.no_grad():
@@ -26,15 +26,15 @@ class Generator(nn.Module):
     def _forward(self):
         raise NotImplementedError
 
-    def forward(self, input_or_batch_size):
+    def forward(self, input_or_batch_size, training=False):
         if self._conditional:
             input = input_or_batch_size
             batch_size = input.size(0)
-            noise = self.get_noise(batch_size)
+            noise = self.get_noise(batch_size, training)
             generated = self._forward(input, noise)
         else:
             batch_size = input_or_batch_size
-            noise = self.get_noise(batch_size)
+            noise = self.get_noise(batch_size, training)
             generated = self._forward(noise)
         if not self.training:
             generated = generated.detach()

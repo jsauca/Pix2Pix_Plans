@@ -8,20 +8,32 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 
 def get_dataset(args):
 
-    preprocessing = [
+    # preprocessing = [
+    #     transforms.Resize(64),
+    #     transforms.CenterCrop(64),
+    #     transforms.ToTensor(),
+    # ]
+    # if args.data_normalize:
+    #     preprocessing.append(
+    #         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
+    # preprocessing = transforms.Compose(preprocessing)
+    preprocessing = transforms.Compose([
         transforms.Resize(64),
         transforms.CenterCrop(64),
         transforms.ToTensor(),
-    ]
-    if args.data_normalize:
-        preprocessing.append(
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
-    preprocessing = transforms.Compose(preprocessing)
-    data = torchvision.datasets.ImageFolder(args.data_folder,
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    ])
+
+    if args.debug:
+        data = torchvision.datasets.CIFAR10(root='dataset/cifar10/',
+                                            train=True,
+                                            download=True,
                                             transform=preprocessing)
+    else:
+        data = torchvision.datasets.ImageFolder(args.data_folder,
+                                                transform=preprocessing)
     data = torch.utils.data.DataLoader(data,
                                        batch_size=args.batch_size,
-                                       drop_last=True,
                                        shuffle=True,
                                        drop_last=True,
                                        num_workers=0)

@@ -64,10 +64,12 @@ class Trainer:
             optimizer_class = optim.SGD
         self._g_opt = optimizer_class(self._g_net.parameters(),
                                       lr=self._args.learning_rate,
-                                      weight_decay=self._args.weight_decay)
+                                      weight_decay=self._args.weight_decay,
+                                      betas=(0.5, 0.999))
         self._d_opt = optimizer_class(self._d_net.parameters(),
                                       lr=self._args.learning_rate,
-                                      weight_decay=self._args.weight_decay)
+                                      weight_decay=self._args.weight_decay,
+                                      betas=(0.5, 0.999))
 
     def _build_scheduler(self):
         self._lr_scheduler = LR_Scheduler(self._d_opt, self._g_opt,
@@ -126,21 +128,21 @@ class Trainer:
         self._g_loss = g_loss
 
     def _g_step(self):
+        self._g_opt.zero_grad()
         self._d_net.eval()
         self._g_net.train()
-        x_fake = self._g_net(self._args.batch_size)
+        x_fake = self._g_net(self._args.batch_size, True)
         d_fake = self._d_net(x_fake)
-        self._g_opt.zero_grad()
         loss = self._g_loss(d_fake)
         loss.backward()
         self._g_opt.step()
 
     def _d_step(self, x_real):
+        self._d_opt.zero_grad()
         self._d_net.train()
         self._g_net.eval()
-        x_fake = self._g_net(self._args.batch_size)
+        x_fake = self._g_net(self._args.batch_size).detach()
         d_real, d_fake = self._d_net(x_real, x_fake)
-        self._d_opt.zero_grad()
         loss = self._d_loss(d_real, d_fake, x_real, x_fake)
         loss.backward()
         self._d_opt.step()
@@ -155,8 +157,8 @@ class Trainer:
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-            if self._args.debug and batch_idx > 10:
-                break
+            # if self._args.debug and batch_idx > 10:
+            #     break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
@@ -186,7 +188,9 @@ class Trainer:
 
     def save_samples(self, samples, nrow=8, normalize=True, padding=2):
         print('--> Saving samples = {}'.format(self._epoch_dir))
-        vutils.save_image(samples, self._epoch_dir + 'grid.png')
+        vutils.save_image(samples,
+                          self._epoch_dir + 'grid.png',
+                          normalize=False)
         if not self._args.debug:
             for sample_idx, sample in enumerate(samples):
                 vutils.save_image(
