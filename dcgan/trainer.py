@@ -96,9 +96,9 @@ class Trainer:
             def gradient_penalty(x_real, x_fake):
                 batch_size = x_real.size(0)
                 if use_cuda:
-                    alpha = torch.cuda.FloatTensor(
-                        batch_size, 1, 1,
-                        1).uniform_(0, 1).expand([batch_size, 3, 256, 256])
+                    alpha = torch.cuda.FloatTensor(batch_size, 1, 1,
+                                                   1).uniform_(0, 1).expand(
+                                                       [batch_size, 3, 64, 64])
                 else:
                     alpha = torch.FloatTensor(batch_size, 1, 1, 1).uniform_(
                         0, 1).expand([batch_size, 3, 64, 64])
@@ -157,8 +157,8 @@ class Trainer:
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-            # if self._args.debug and batch_idx > 10:
-            #     break
+            if self._args.debug and batch_idx > 10:
+                break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
