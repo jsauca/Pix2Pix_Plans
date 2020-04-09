@@ -21,10 +21,11 @@ def get_dataset(args):
                                             transform=preprocessing)
     data = torch.utils.data.DataLoader(data,
                                        batch_size=args.batch_size,
+                                       drop_last=True,
                                        shuffle=True,
                                        drop_last=True,
                                        num_workers=0)
     print('* Loading dataset ...')
-    print('----> Length = {}'.format(len(data)))
+    print('----> Number of bacthes = {}'.format(len(data)))
     print('----> Preprocess = {} + {}'.format('normalize', 'resize 256x256'))
     return data
