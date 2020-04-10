@@ -19,7 +19,7 @@ def options_disc(parser):
     parser.add_argument('--disc_version',
                         help='version for discriminator',
                         type=int,
-                        default=1)
+                        default=0)
     parser.add_argument('--disc_scale',
                         help='scale of hidden dimensions',
                         type=int,
@@ -35,13 +35,13 @@ def options_gen(parser):
     parser.add_argument('--gen_version',
                         help='version for discriminator',
                         type=int,
-                        default=1)
+                        default=0)
     parser.add_argument('--gen_scale',
                         help='scale of hidden dimensions',
                         type=int,
                         default=64)
     parser.add_argument('--gen_checkpoint',
-                        help='checkpoint for discriminator',
+                        help='checkpoint for generator',
                         type=str,
                         default=None)
     parser.add_argument('--noise_size',
@@ -67,7 +67,7 @@ def options_trainer(parser):
     parser.add_argument('--loss_type',
                         help='loss for model : wasserstein or minimax',
                         type=str,
-                        default='wasserstein')
+                        default='minimax')
     parser.add_argument('--learning_rate',
                         help='learning rate for optimizer',
                         type=float,
@@ -87,4 +87,4 @@ def options_trainer(parser):
     parser.add_argument('--debug',
                         help='set to true for debug',
                         type=bool,
-                        default=False)
+                        default=True)

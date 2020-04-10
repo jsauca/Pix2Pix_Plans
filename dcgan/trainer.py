@@ -165,7 +165,7 @@ class Trainer:
         os.makedirs(self._epoch_dir)
         self._epoch_dir += '/'
 
-    def save_checkpoints(self, d_save=False, g_save=True):
+    def save_checkpoints(self, d_save=True, g_save=True):
         if d_save and not self._args.debug:
             path = self._epoch_dir + 'disc_checkpoint.pt'
             print('--> Saving discriminator checkpoint = {} ...'.format(path))
