@@ -14,7 +14,7 @@ gen = dcgan.get_generator(args)
 
 ### Trainer
 trainer = dcgan.get_trainer(data, gen, disc, args)
-for epoch in range(10):
+for epoch in range(1000):
     trainer.train()
     trainer.save_checkpoints()
     samples = trainer.test()

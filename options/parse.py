@@ -19,7 +19,7 @@ def options_disc(parser):
     parser.add_argument('--disc_version',
                         help='version for discriminator',
                         type=int,
-                        default=0)
+                        default=1)
     parser.add_argument('--disc_scale',
                         help='scale of hidden dimensions',
                         type=int,
@@ -35,7 +35,7 @@ def options_gen(parser):
     parser.add_argument('--gen_version',
                         help='version for discriminator',
                         type=int,
-                        default=0)
+                        default=1)
     parser.add_argument('--gen_scale',
                         help='scale of hidden dimensions',
                         type=int,
@@ -87,4 +87,4 @@ def options_trainer(parser):
     parser.add_argument('--debug',
                         help='set to true for debug',
                         type=bool,
-                        default=True)
+                        default=False)
