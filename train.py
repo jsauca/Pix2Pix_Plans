@@ -1,4 +1,5 @@
 import dataset, dcgan, options
+import torch
 torch.backends.cudnn.enabled = False
 ### Options
 args = options.get_train_args()
