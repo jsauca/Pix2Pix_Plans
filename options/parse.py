@@ -55,7 +55,7 @@ def options_trainer(parser):
     parser.add_argument('--batch_size',
                         help='batch size for training',
                         type=int,
-                        default=32)
+                        default=64)
     parser.add_argument('--gen_prob',
                         help='probability/frequency of training generator',
                         type=float,
