@@ -7,19 +7,8 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 
 
 def get_dataset(args):
-
-    # preprocessing = [
-    #     transforms.Resize(64),
-    #     transforms.CenterCrop(64),
-    #     transforms.ToTensor(),
-    # ]
-    # if args.data_normalize:
-    #     preprocessing.append(
-    #         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)))
-    # preprocessing = transforms.Compose(preprocessing)
     preprocessing = transforms.Compose([
         transforms.Resize(64),
-        transforms.CenterCrop(64),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     ])

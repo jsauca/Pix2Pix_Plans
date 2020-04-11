@@ -82,6 +82,15 @@ class Conv_2D(nn.Module):
             self._bn = nn.BatchNorm2d(out_channels)
         else:
             self._bn = nn.Identity()
+        self.init_weights(batch_norm)
+
+    def init_weights(self, batch_norm):
+        nn.init.xavier_uniform_(self._op.weight)
+        if self._op.bias is not None:
+            nn.init.constant_(self._op.bias, 0.0)
+        if batch_norm:
+            nn.init.normal_(self._bn.weight, 1.0, 0.02)
+            nn.init.constant_(self._bn.bias, 0)
 
     def forward(self, x):
         x = self._op(x)
@@ -98,6 +107,12 @@ class UpSampleConv(nn.Module):
         self._conv = Conv_2D(in_channels, out_channels, kernel_size, 1,
                              int((kernel_size - 1) / 2), 'id', False, False,
                              bias)
+        self.init_weights()
+
+    def init_weights(self):
+        nn.init.xavier_uniform_(self._conv.weight)
+        if self._conv.bias is not None:
+            nn.init.constant_(self._conv.bias, 0.0)
 
     def forward(self, x):
         x = torch.cat((x, x, x, x), 1)

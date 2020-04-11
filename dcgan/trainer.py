@@ -117,12 +117,12 @@ class Trainer:
                 return gradient_penalty
 
             def d_loss(d_real, d_fake, x_real, x_fake):
-                loss = -d_real.mean(0) + d_fake.mean(0)
-                loss += gradient_penalty(x_real, x_fake)
+                loss = -d_real.mean() + d_fake.mean()
+                loss += 10 * gradient_penalty(x_real, x_fake)
                 return loss
 
             def g_loss(d_fake):
-                return -d_fake.mean(0)
+                return -d_fake.mean()
 
         self._d_loss = d_loss
         self._g_loss = g_loss
@@ -157,8 +157,8 @@ class Trainer:
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-            # if self._args.debug and batch_idx > 10:
-            #     break
+            if self._args.debug and batch_idx > 10:
+                break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
@@ -178,10 +178,7 @@ class Trainer:
     def test(self, to_numpy=False):
         print('--> Generating {} samples ...'.format(self._args.num_samples))
         with torch.no_grad():
-            samples = [
-                self._g_net(1).squeeze(0) for _ in range(self._args.num_samples)
-            ]
-            samples = self._g_net(self._args.num_samples)
+            samples = self._g_net(self._args.num_samples) * 0.5 + 0.5
         if to_numpy:
             samples = [sample.detach().cpu() for sample in samples]
         return samples

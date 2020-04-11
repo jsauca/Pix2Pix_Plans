@@ -56,6 +56,11 @@ class Disc_v1(Discriminator):
             ResidualBlock(8 * scale, 8 * scale, 3, 'down', int(scale / 8)),
         ])
         self._fc = nn.Linear(scale * scale * 2, 1)
+        self.init_weights()
+
+    def init_weights(self):
+        nn.init.xavier_uniform_(self._fc.weight)
+        nn.init.constant_(self._fc.bias, 0.0)
 
     def _forward(self, image):
         x = image

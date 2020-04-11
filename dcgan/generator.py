@@ -81,6 +81,12 @@ class Gen_v1(Generator):
             Conv_2D(scale, channels, 3, 1, 1, 'tanh', False)
         ])
 
+        self.init_weights()
+
+    def init_weights(self):
+        nn.init.xavier_uniform_(self._fc.weight)
+        nn.init.constant_(self._fc.bias, 0.0)
+
     def _forward(self, z):
         x = self._fc(z)
         x = x.view(-1, 8 * self._scale, int(self._scale / 16),
