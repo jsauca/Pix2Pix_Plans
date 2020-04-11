@@ -67,7 +67,7 @@ def options_trainer(parser):
     parser.add_argument('--loss_type',
                         help='loss for model : wasserstein or minimax',
                         type=str,
-                        default='minimax')
+                        default='wasserstein')
     parser.add_argument('--learning_rate',
                         help='learning rate for optimizer',
                         type=float,
