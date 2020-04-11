@@ -157,8 +157,8 @@ class Trainer:
             self._d_step(x_real.to(device))
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step()
-            if self._args.debug and batch_idx > 10:
-                break
+            # if self._args.debug and batch_idx > 10:
+            #     break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
