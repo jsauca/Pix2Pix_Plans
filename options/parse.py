@@ -27,7 +27,7 @@ def options_disc(parser):
     parser.add_argument('--disc_checkpoint',
                         help='checkpoint for discriminator',
                         type=str,
-                        default=None)
+                        default="temp/04-11_10-30-32/epoch_55/disc_checkpoint.pt")
 
 
 def options_gen(parser):
@@ -43,7 +43,7 @@ def options_gen(parser):
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
-                        default=None)
+                        default="temp/04-11_10-30-32/epoch_55/gen_checkpoint.pt")
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,
