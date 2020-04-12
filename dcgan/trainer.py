@@ -8,6 +8,8 @@ import os
 from tqdm import tqdm
 from datetime import datetime
 import torchvision.utils as vutils
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
@@ -50,6 +52,7 @@ class Trainer:
 
     def _init_train(self):
         self._epoch = 0
+        self._samples = []
 
     def _build_dir(self):
         self._dir = os.path.join(os.getcwd(), 'temp',
@@ -165,7 +168,7 @@ class Trainer:
         os.makedirs(self._epoch_dir)
         self._epoch_dir += '/'
 
-    def save_checkpoints(self, d_save=True, g_save=True):
+    def save_checkpoints(self, d_save=False, g_save=False):
         if d_save and not self._args.debug:
             path = self._epoch_dir + 'disc_checkpoint.pt'
             print('--> Saving discriminator checkpoint = {} ...'.format(path))
@@ -194,3 +197,27 @@ class Trainer:
                 vutils.save_image(
                     sample,
                     self._epoch_dir + 'sample_{}.png'.format(sample_idx))
+
+    def show_samples(self, samples, nrow=8, normalize=False, padding=2):
+        i = vutils.make_grid(samples, normalize=normalize, padding=padding)
+        i = np.transpose(i.cpu().detach(), (1, 2, 0))
+        fig = plt.figure(figsize=(8, 8))
+        plt.axis("off")
+        plt.imshow(i)
+        plt.show()
+        self._samples.append(i)
+        plt.clf()
+
+    def show_animation(self):
+        from IPython.display import HTML
+        fig = plt.figure(figsize=(8, 8))
+        plt.axis("off")
+        ims = [[plt.imshow(i, animated=True)] for i in self._samples]
+        ani = animation.ArtistAnimation(fig,
+                                        ims,
+                                        interval=1000,
+                                        repeat_delay=1000,
+                                        blit=True)
+
+        HTML(ani.to_jshtml())
+        plt.clf()

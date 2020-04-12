@@ -2,6 +2,10 @@ import argparse
 from .parse import *
 import json
 import os
+import torch
+
+use_cuda = torch.cuda.is_available()
+device = torch.device("cuda:0" if use_cuda else "cpu")
 
 
 def load_args(path):
@@ -27,4 +31,6 @@ def get_train_args():
     print('* Loading options ...')
     for arg, value in args.__dict__.items():
         print('----> {} = {}'.format(arg, value))
+    print('----> {} = {}'.format('use_cuda', use_cuda))
+    print('----> {} = {}'.format('device', device))
     return args

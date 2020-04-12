@@ -13,14 +13,14 @@ def get_dataset(args):
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     ])
 
-    if not args.debug:
-        data = torchvision.datasets.CIFAR10(root='dataset/cifar10/',
-                                            train=True,
-                                            download=True,
+    # if not args.debug:
+    #     data = torchvision.datasets.CIFAR10(root='dataset/cifar10/',
+    #                                         train=True,
+    #                                         download=True,
+    #                                         transform=preprocessing)
+    # else:
+    data = torchvision.datasets.ImageFolder(args.data_folder,
                                             transform=preprocessing)
-    else:
-        data = torchvision.datasets.ImageFolder(args.data_folder,
-                                                transform=preprocessing)
     data = torch.utils.data.DataLoader(data,
                                        batch_size=args.batch_size,
                                        shuffle=True,
