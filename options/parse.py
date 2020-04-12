@@ -7,7 +7,7 @@ def options_data(parser):
     parser.add_argument('--data_folder',
                         help='folder for training data',
                         type=str,
-                        default='dataset/')
+                        default='DCGAN/dataset/')
     parser.add_argument('--data_normalize',
                         help='normalize data during preprocessing',
                         type=bool,
