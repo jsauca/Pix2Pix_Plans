@@ -83,4 +83,4 @@ def options_trainer(parser):
     parser.add_argument('--debug',
                         help='set to true for debug',
                         type=bool,
-                        default=True)
+                        default=False)

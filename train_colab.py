@@ -1,6 +1,6 @@
 import dataset, dcgan, options
 import torch
-torch.backends.cudnn.enabled = False
+#torch.backends.cudnn.enabled = False
 ### Options
 args = options.get_train_args()
 
@@ -20,4 +20,4 @@ for epoch in range(100):
     samples = trainer.test()
     trainer.save_samples(samples)
     trainer.show_samples(samples)
-    trainer.show_animation()
+    #trainer.show_animation()
