@@ -13,7 +13,7 @@ def get_dataset(args):
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     ])
 
-    if args.debug:
+    if not args.debug:
         data = torchvision.datasets.CIFAR10(root='dataset/cifar10/',
                                             train=True,
                                             download=True,

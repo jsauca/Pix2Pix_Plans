@@ -129,8 +129,8 @@ class Trainer:
 
     def _g_step(self):
         self._g_opt.zero_grad()
-        self._d_net.eval()
-        self._g_net.train()
+        # self._d_net.eval()
+        # self._g_net.train()
         x_fake = self._g_net(self._args.batch_size, True)
         d_fake = self._d_net(x_fake)
         loss = self._g_loss(d_fake)
@@ -139,8 +139,8 @@ class Trainer:
 
     def _d_step(self, x_real):
         self._d_opt.zero_grad()
-        self._d_net.train()
-        self._g_net.eval()
+        # self._d_net.train()
+        # self._g_net.eval()
         x_fake = self._g_net(self._args.batch_size).detach()
         d_real, d_fake = self._d_net(x_real, x_fake)
         loss = self._d_loss(d_real, d_fake, x_real, x_fake)
@@ -187,7 +187,8 @@ class Trainer:
         print('--> Saving samples = {}'.format(self._epoch_dir))
         vutils.save_image(samples,
                           self._epoch_dir + 'grid.png',
-                          normalize=False)
+                          normalize=normalize,
+                          padding=padding)
         if not self._args.debug:
             for sample_idx, sample in enumerate(samples):
                 vutils.save_image(
