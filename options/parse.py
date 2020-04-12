@@ -12,10 +12,6 @@ def options_data(parser):
                         help='normalize data during preprocessing',
                         type=bool,
                         default=True)
-    parser.add_argument('--data_normalize',
-                        help='normalize data during preprocessing',
-                        type=bool,
-                        default=True)
 
 
 def options_disc(parser):
