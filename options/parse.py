@@ -8,10 +8,6 @@ def options_data(parser):
                         help='folder for training data',
                         type=str,
                         default='dataset/')
-    parser.add_argument('--data_normalize',
-                        help='normalize data during preprocessing',
-                        type=bool,
-                        default=True)
 
 
 def options_disc(parser):
