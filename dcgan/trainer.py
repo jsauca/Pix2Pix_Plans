@@ -218,6 +218,6 @@ class Trainer:
                                         interval=1000,
                                         repeat_delay=1000,
                                         blit=True)
-
-        HTML(ani.to_jshtml())
-        plt.clf()
+        print('blaaaaaaaaaaaaaaaaaa')
+        HTML(ani.to_html5_video())
+        #plt.clf()
