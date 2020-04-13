@@ -24,7 +24,7 @@ def load_img(path_sample):
         img[np.where(img[:, :, 3] == 0)] = 255
     img = transform.resize(img, (256, 256))
     img = img[:, :, :3].astype('float32')
-    
+
     # image_bis = cv2.Canny(img, 200, 300)
     # image_bis = np.expand_dims(image_bis, axis=2)
     # img = np.concatenate((image_bis,image_bis,image_bis), axis=2)
@@ -96,4 +96,7 @@ for gap in range(1,8,1):
                     output_prefix = folder_outputs + \
                     'gap_{}_dist_{}_length_{}_heat_{}_'.format(gap,distanceThreshold,lengthThreshold,heatmapValueThresholdWall) # + path_sample[:-4]
                     print(output_prefix)
-                    apply_rtv(img, image, output_prefix)
+                    apply_rtv(img, image, output_prefix,gap,
+                                    distanceThreshold,
+                                    lengthThreshold,
+                                    heatmapValueThresholdWall)
