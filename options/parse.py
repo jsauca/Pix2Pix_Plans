@@ -55,7 +55,7 @@ def options_trainer(parser):
     parser.add_argument('--gen_prob',
                         help='probability/frequency of training generator',
                         type=float,
-                        default=0.2)
+                        default=1)
     parser.add_argument('--optimizer',
                         help='optimizer type : adam, sgd or rms',
                         type=str,
@@ -63,7 +63,7 @@ def options_trainer(parser):
     parser.add_argument('--loss_type',
                         help='loss for model : wasserstein or minimax',
                         type=str,
-                        default='wasserstein')
+                        default='minimax')
     parser.add_argument('--learning_rate',
                         help='learning rate for optimizer',
                         type=float,
