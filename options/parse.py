@@ -75,7 +75,7 @@ def options_trainer(parser):
     parser.add_argument('--weight_decay',
                         help='weight decay for optimizer',
                         type=float,
-                        default=5e-5) #0 #1e-6 #5e-6
+                        default=0) #0 #1e-6 #5e-6
     parser.add_argument('--num_samples',
                         help='number of samples for tester',
                         type=int,
