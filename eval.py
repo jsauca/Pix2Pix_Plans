@@ -42,11 +42,11 @@ def load_img(path_sample):
 
 
 def apply_rtv(img, image, output_prefix, gap=-1,
-                distanceThreshold=-1,
-                lengthThreshold=-1,
-                heatmapValueThresholdWall=None,
-                heatmapValueThresholdDoor=None,
-                heatmapValueThresholdIcon=None):
+              distanceThreshold=-1,
+              lengthThreshold=-1,
+              heatmapValueThresholdWall=None,
+              heatmapValueThresholdDoor=None,
+              heatmapValueThresholdIcon=None):
     output_prefix += '_'
     corner_pred, icon_pred, room_pred = RTV(image)
     corner_pred, icon_pred, room_pred = corner_pred.squeeze(
@@ -72,8 +72,8 @@ def apply_rtv(img, image, output_prefix, gap=-1,
         lengthThreshold=lengthThreshold,
         debug_prefix='test',
         heatmapValueThresholdWall=heatmapValueThresholdWall,
-        heatmapValueThresholdDoor=heatmapValueThresholdWall, #same threshold
-        heatmapValueThresholdIcon=heatmapValueThresholdWall, #same threshold
+        heatmapValueThresholdDoor=heatmapValueThresholdWall,  # same threshold
+        heatmapValueThresholdIcon=heatmapValueThresholdWall,  # same threshold
         enableAugmentation=True)
     dicts = {
         'corner': corner_pred.max(-1)[1].detach().cpu().numpy(),
@@ -86,6 +86,8 @@ def apply_rtv(img, image, output_prefix, gap=-1,
             output_prefix + info + '.png',
             drawSegmentationImage(dicts[info], blackIndex=0,
                                   blackThreshold=0.5))
+
+
 """
 for gap in range(1,8,1):
     for distanceThreshold in range(3,9):
@@ -101,24 +103,26 @@ for gap in range(1,8,1):
                                     lengthThreshold,
                                     heatmapValueThresholdWall)
 """
+
+# generalize to all good parameters and several images
 for path_sample in paths:
     img, image = load_img(folder_inputs + path_sample)
     output_prefix = folder_outputs + path_sample[:-4]
 
-    apply_rtv(img, image, output_prefix + "_1",gap=3,
-                    distanceThreshold=4,
-                    lengthThreshold=6,
-                    heatmapValueThresholdWall=0.2)
-    apply_rtv(img, image, output_prefix + "_2",gap=4,
-                    distanceThreshold=3,
-                    lengthThreshold=6,
-                    heatmapValueThresholdWall=0.3)
+    apply_rtv(img, image, output_prefix + "_1", gap=3,
+              distanceThreshold=4,
+              lengthThreshold=6,
+              heatmapValueThresholdWall=0.2)
+    apply_rtv(img, image, output_prefix + "_2", gap=4,
+              distanceThreshold=3,
+              lengthThreshold=6,
+              heatmapValueThresholdWall=0.3)
 
 files = os.listdir(folder_outputs)
 images = []
 for file in files:
     if file.endswith("result_line.png"):
-        images.append(cv2.imread(os.path.join(folder_outputs,file),1))
-        
+        images.append(cv2.imread(os.path.join(folder_outputs, file), 1))
+
 cv2.imwrite(
-    output_prefix + 'sum'+ '.png', sum(images))
+    output_prefix + 'sum' + '.png', sum(images))
