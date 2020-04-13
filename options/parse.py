@@ -51,11 +51,11 @@ def options_trainer(parser):
     parser.add_argument('--batch_size',
                         help='batch size for training',
                         type=int,
-                        default=64)
+                        default=128)
     parser.add_argument('--gen_prob',
                         help='probability/frequency of training generator',
                         type=float,
-                        default=1.)
+                        default=1)
     parser.add_argument('--optimizer',
                         help='optimizer type : adam, sgd or rms',
                         type=str,
@@ -71,11 +71,11 @@ def options_trainer(parser):
     parser.add_argument('--learning_rate_decay',
                         help='learning rate decay for optimizer',
                         type=float,
-                        default=1.)
+                        default=0.999) #1
     parser.add_argument('--weight_decay',
                         help='weight decay for optimizer',
                         type=float,
-                        default=0.)
+                        default=0) #0 #1e-6 #5e-6
     parser.add_argument('--num_samples',
                         help='number of samples for tester',
                         type=int,

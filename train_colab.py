@@ -15,7 +15,7 @@ gen = dcgan.get_generator(args)
 
 ### Trainer
 trainer = dcgan.get_trainer(data, gen, disc, args)
-for epoch in range(100):
+for epoch in range(500):
     trainer.train()
     samples = trainer.test()
     trainer.save_samples(samples)
