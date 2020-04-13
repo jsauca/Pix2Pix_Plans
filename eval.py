@@ -86,7 +86,7 @@ def apply_rtv(img, image, output_prefix, gap=-1,
             output_prefix + info + '.png',
             drawSegmentationImage(dicts[info], blackIndex=0,
                                   blackThreshold=0.5))
-
+"""
 for gap in range(1,8,1):
     for distanceThreshold in range(3,9):
         for lengthThreshold in range(3,9):
@@ -100,3 +100,25 @@ for gap in range(1,8,1):
                                     distanceThreshold,
                                     lengthThreshold,
                                     heatmapValueThresholdWall)
+"""
+for path_sample in paths:
+    img, image = load_img(folder_inputs + path_sample)
+    output_prefix = folder_outputs + path_sample[:-4]
+
+    apply_rtv(img, image, output_prefix + "_1",gap=3,
+                    distanceThreshold=4,
+                    lengthThreshold=6,
+                    heatmapValueThresholdWall=0.2)
+    apply_rtv(img, image, output_prefix + "_2",gap=4,
+                    distanceThreshold=3,
+                    lengthThreshold=6,
+                    heatmapValueThresholdWall=0.3)
+
+files = os.listdir(folder_outputs)
+images = []
+for file in files:
+    if file.endswith("result_line.png"):
+        images.append(cv2.imread(os.path.join(folder_outputs,file),1))
+        
+cv2.imwrite(
+    output_prefix + 'sum'+ '.png', sum(images))
