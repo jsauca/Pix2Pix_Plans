@@ -7,7 +7,7 @@ import csv
 import copy
 from .utils import *
 from skimage import measure
-do_print = True
+do_print = False
 GAPS = {
     'wall_extraction': 5,
     'door_extraction': 5,
