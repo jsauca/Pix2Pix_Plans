@@ -1,7 +1,8 @@
 *.pyc
 temp/*
 dataset/cifar10/*
-
+rtv_inputs/*
+rtv_outputs/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
