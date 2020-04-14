@@ -72,8 +72,8 @@ def apply_rtv(img, image, output_prefix, gap=-1,
         lengthThreshold=lengthThreshold,
         debug_prefix='test',
         heatmapValueThresholdWall=heatmapValueThresholdWall,
-        heatmapValueThresholdDoor=heatmapValueThresholdWall,  # same threshold
-        heatmapValueThresholdIcon=heatmapValueThresholdWall,  # same threshold
+        heatmapValueThresholdDoor=heatmapValueThresholdWall / 2,  # same threshold
+        heatmapValueThresholdIcon=heatmapValueThresholdWall / 2,  # same threshold
         enableAugmentation=True)
     dicts = {
         'corner': corner_pred.max(-1)[1].detach().cpu().numpy(),
@@ -103,26 +103,34 @@ for gap in range(1,8,1):
                                     lengthThreshold,
                                     heatmapValueThresholdWall)
 """
-
+gaps = [3, 4]  # range(1, 8, 1)
+distances = [3, 4]  # range(3, 9)
+lengths = [6]  # range(3, 9)
+heatmaps = [0.3, 0.4, 0.5, 0.6, 0.7]  # [x * 0.1 for x in range(2, 9, 1)]
 # generalize to all good parameters and several images
 for path_sample in paths:
+
     img, image = load_img(folder_inputs + path_sample)
     output_prefix = folder_outputs + path_sample[:-4]
 
-    apply_rtv(img, image, output_prefix + "_1", gap=3,
-              distanceThreshold=4,
-              lengthThreshold=6,
-              heatmapValueThresholdWall=0.2)
-    apply_rtv(img, image, output_prefix + "_2", gap=4,
-              distanceThreshold=3,
-              lengthThreshold=6,
-              heatmapValueThresholdWall=0.3)
+    for gap in gaps:
+        for distanceThreshold in distances:
+            for lengthThreshold in lengths:
+                for heatmapValueThresholdWall in heatmaps:
+                    output_prefix = folder_outputs + \
+                        'gap_{}_dist_{}_length_{}_heat_{}_'.format(
+                            gap, distanceThreshold, lengthThreshold, heatmapValueThresholdWall)  # + path_sample[:-4]
+                    print(output_prefix)
+                    apply_rtv(img, image, output_prefix, gap=gap,
+                              distanceThreshold=distanceThreshold,
+                              lengthThreshold=lengthThreshold,
+                              heatmapValueThresholdWall=heatmapValueThresholdWall)
 
-files = os.listdir(folder_outputs)
-images = []
-for file in files:
-    if file.endswith("result_line.png"):
-        images.append(cv2.imread(os.path.join(folder_outputs, file), 1))
+    files = os.listdir(folder_outputs)
+    images = np.zeros((256, 256, 3))
+    for file in files:
+        if file.endswith("result_line.png") and path_sample[:-4] in file:
+            images += cv2.imread(os.path.join(folder_outputs, file), 1)
 
-cv2.imwrite(
-    output_prefix + 'sum' + '.png', sum(images))
+    cv2.imwrite(
+        output_prefix + '_sum' + '.png', images)
