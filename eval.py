@@ -123,6 +123,7 @@ for path_sample in paths:
     for file in files:
         if file.endswith("result_line.png") and path_sample[:-4] in file:
             images += cv2.imread(os.path.join(folder_outputs, file), 1)
-
+        if file.endswith("floorplan.txt") and path_sample[:-4] in file:
+            continue
     cv2.imwrite(
         folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
