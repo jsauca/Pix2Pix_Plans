@@ -1,1 +1,0 @@
-curl -L -o rtv.pth "https://drive.google.com/uc?export=download&id=1e5c7308fdoCMRv0w-XduWqyjYPV4JWHS"
