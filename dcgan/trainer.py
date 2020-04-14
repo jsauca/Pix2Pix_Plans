@@ -21,7 +21,7 @@ class LR_Scheduler:
         if learning_rate_decay is None or learning_rate_decay == 0.:
             self.step = self.dummy_step
         else:
-            lr_lambda = lambda epoch: learning_rate_decay
+            def lr_lambda(epoch): return learning_rate_decay
             self._g_scheduler = optim.lr_scheduler.MultiplicativeLR(
                 g_opt, lr_lambda)
             self._d_scheduler = optim.lr_scheduler.MultiplicativeLR(
@@ -168,7 +168,7 @@ class Trainer:
         os.makedirs(self._epoch_dir)
         self._epoch_dir += '/'
 
-    def save_checkpoints(self, d_save=False, g_save=False):
+    def save_checkpoints(self, d_save=True, g_save=True):
         if d_save and not self._args.debug:
             path = self._epoch_dir + 'disc_checkpoint.pt'
             print('--> Saving discriminator checkpoint = {} ...'.format(path))
@@ -206,7 +206,7 @@ class Trainer:
         plt.imshow(i)
         plt.show()
         self._samples.append(i)
-        #plt.clf()
+        # plt.clf()
 
     def show_animation(self):
         from IPython.display import HTML
@@ -220,4 +220,4 @@ class Trainer:
                                         blit=True)
         print('blaaaaaaaaaaaaaaaaaa')
         HTML(ani.to_html5_video())
-        #plt.clf()
+        # plt.clf()
