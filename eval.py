@@ -6,6 +6,7 @@ from os import listdir
 from os.path import isfile, join
 from datetime import datetime
 import cv2 as cv2
+use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:0" if use_cuda else "cpu")
 RTV = RasterToVector()
 RTV.load_state_dict(
