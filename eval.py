@@ -88,21 +88,6 @@ def apply_rtv(img, image, output_prefix, gap=-1,
                                   blackThreshold=0.5))
 
 
-"""
-for gap in range(1,8,1):
-    for distanceThreshold in range(3,9):
-        for lengthThreshold in range(3,9):
-            for heatmapValueThresholdWall in [x*0.1 for x in range(2,9,1)]:
-                for path_sample in paths:
-                    img, image = load_img(folder_inputs + path_sample)
-                    output_prefix = folder_outputs + \
-                    'gap_{}_dist_{}_length_{}_heat_{}_'.format(gap,distanceThreshold,lengthThreshold,heatmapValueThresholdWall) # + path_sample[:-4]
-                    print(output_prefix)
-                    apply_rtv(img, image, output_prefix,gap,
-                                    distanceThreshold,
-                                    lengthThreshold,
-                                    heatmapValueThresholdWall)
-"""
 gaps = [5]  # range(1, 8, 1)
 distances = [5]  # range(3, 9)
 lengths = [6]  # range(3, 9)
