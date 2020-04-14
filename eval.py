@@ -103,8 +103,8 @@ for path_sample in paths:
         for distanceThreshold in distances:
             for lengthThreshold in lengths:
                 for heatmapValueThresholdWall in heatmaps_wall:
-                    for heatmapValueThresholdWall in heatmaps_wall:
-                        for heatmapValueThresholdWall in heatmaps_wall:
+                    for heatmapValueThresholdDoor in heatmaps_door:
+                        for heatmapValueThresholdIcon in heatmaps_icon:
                             output_prefix = folder_outputs + path_sample[:-4] + \
                                 '_gap_{}_dist_{}_length_{}_wall_{}_door_{}_icon_{}'.format(
                                     gap, distanceThreshold, lengthThreshold,
