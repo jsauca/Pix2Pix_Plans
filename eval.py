@@ -103,9 +103,9 @@ for gap in range(1,8,1):
                                     lengthThreshold,
                                     heatmapValueThresholdWall)
 """
-gaps = [3, 4]  # range(1, 8, 1)
-distances = [3, 4]  # range(3, 9)
-lengths = [6, 7]  # range(3, 9)
+gaps = [3, 4, 5, 6]  # range(1, 8, 1)
+distances = [3, 4, 5, 6]  # range(3, 9)
+lengths = [6, 7, 8]  # range(3, 9)
 heatmaps = [0.3, 0.6, 0.7]  # [x * 0.1 for x in range(2, 9, 1)]
 # generalize to all good parameters and several images
 for path_sample in paths:
