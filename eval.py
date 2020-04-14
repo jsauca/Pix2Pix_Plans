@@ -72,8 +72,8 @@ def apply_rtv(img, image, output_prefix, gap=-1,
         lengthThreshold=lengthThreshold,
         debug_prefix='test',
         heatmapValueThresholdWall=heatmapValueThresholdWall,
-        heatmapValueThresholdDoor=heatmapValueThresholdWall / 2,  # same threshold
-        heatmapValueThresholdIcon=heatmapValueThresholdWall / 2,  # same threshold
+        heatmapValueThresholdDoor=heatmapValueThresholdWall,  # same threshold
+        heatmapValueThresholdIcon=heatmapValueThresholdWall,  # same threshold
         enableAugmentation=True)
     dicts = {
         'corner': corner_pred.max(-1)[1].detach().cpu().numpy(),
@@ -105,21 +105,20 @@ for gap in range(1,8,1):
 """
 gaps = [3, 4]  # range(1, 8, 1)
 distances = [3, 4]  # range(3, 9)
-lengths = [6]  # range(3, 9)
-heatmaps = [0.3, 0.4, 0.5, 0.6, 0.7]  # [x * 0.1 for x in range(2, 9, 1)]
+lengths = [6, 7]  # range(3, 9)
+heatmaps = [0.3, 0.6, 0.7]  # [x * 0.1 for x in range(2, 9, 1)]
 # generalize to all good parameters and several images
 for path_sample in paths:
 
     img, image = load_img(folder_inputs + path_sample)
-    output_prefix = folder_outputs + path_sample[:-4]
 
     for gap in gaps:
         for distanceThreshold in distances:
             for lengthThreshold in lengths:
                 for heatmapValueThresholdWall in heatmaps:
-                    output_prefix = folder_outputs + \
-                        'gap_{}_dist_{}_length_{}_heat_{}_'.format(
-                            gap, distanceThreshold, lengthThreshold, heatmapValueThresholdWall)  # + path_sample[:-4]
+                    output_prefix = folder_outputs + path_sample[:-4] + \
+                        '_gap_{}_dist_{}_length_{}_heat_{}_'.format(
+                            gap, distanceThreshold, lengthThreshold, heatmapValueThresholdWall)
                     print(output_prefix)
                     apply_rtv(img, image, output_prefix, gap=gap,
                               distanceThreshold=distanceThreshold,
@@ -133,4 +132,4 @@ for path_sample in paths:
             images += cv2.imread(os.path.join(folder_outputs, file), 1)
 
     cv2.imwrite(
-        output_prefix + '_sum' + '.png', images)
+        folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
