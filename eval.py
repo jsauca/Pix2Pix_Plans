@@ -7,7 +7,8 @@ from os.path import isfile, join
 from datetime import datetime
 import cv2 as cv2
 use_cuda = torch.cuda.is_available()
-device = torch.device("cuda:0" if use_cuda else "cpu")
+device = torch.device("cuda:0" if use_cuda else "cpu")  # cpu
+
 RTV = RasterToVector()
 RTV.load_state_dict(
     torch.load('rtv/checkpoints/rtv.pth', map_location=device))
@@ -89,12 +90,12 @@ def apply_rtv(img, image, output_prefix, gap=-1,
                                   blackThreshold=0.5))
 
 
-gaps = [5]  # range(1, 8, 1)
-distances = [5]  # range(3, 9)
-lengths = [6]  # range(3, 9)
-heatmaps_wall = [0.3, 0.4, 0.5, 0.6, 0.7]  # [x * 0.1 for x in range(2, 9, 1)]
-heatmaps_door = [0.3, 0.5, 0.7]
-heatmaps_icon = [0.3, 0.5, 0.7]
+gaps = [2, 3, 4, 5, 6]  # range(1, 8, 1)
+distances = [2, 3, 4, 5]  # range(3, 9)
+lengths = [2, 3, 4]  # range(3, 9)
+heatmaps_wall = [0.3, 0.4]  # [x * 0.1 for x in range(2, 9, 1)]
+heatmaps_door = [0.3, 0.5]
+heatmaps_icon = [0.3]
 # generalize to all good parameters and several images
 
 for path_sample in paths:
