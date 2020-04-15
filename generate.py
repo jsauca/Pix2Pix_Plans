@@ -11,8 +11,7 @@ from rtv.network import RasterToVector
 from rtv.ip import *
 import options
 from eval import full_rtv
-use_cuda = torch.cuda.is_available()
-device = torch.device("cuda:0" if use_cuda else "cpu")
+device = torch.device("cpu")
 
 args = options.get_test_args()
 

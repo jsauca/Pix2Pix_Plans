@@ -6,6 +6,15 @@ from os import listdir
 from os.path import isfile, join
 from datetime import datetime
 import cv2 as cv2
+import string
+alphabet = string.ascii_lowercase
+
+
+def contains_letter(string):
+    for letter in alphabet:
+        if letter in string:
+            return True
+    return False
 
 
 def load_img(path_sample):
@@ -96,7 +105,12 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
                 images += cv2.imread(os.path.join(folder_outputs, file), 1)
             if file.endswith("floorplan.txt") and path_sample[:-4] in file:
                 with open(folder_outputs + file, "r") as reader:
-                    for line_int, line_str in zip(filter(lambda x: x[:-2].replace(" ", "").isdigit(), reader.readlines()), filter(lambda x: not x[:-2].replace(" ", "").isdigit(), reader.readlines())):
+                    print(reader.readlines())
+                    # a = contains_letter(reader.readlines()[
+                    #     2][:-2].replace("n", "").replace("t", ""))
+
+                    # print(a)
+                    for line_int, line_str in zip(filter(lambda x: not contains_letter(x[:-2].replace("n", "").replace("t", "")), reader.readlines()), filter(lambda x: contains_letter(x[:-2].replace("n", "").replace("t", ""), reader.readlines()))):
                         print("AAAAA")
                         if line_int not in txt_main_int:
                             txt_main_int.append(line_int)
@@ -112,8 +126,7 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
 
 if __name__ == '__main__':
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_cuda else "cpu")  # cpu
+    device = torch.device("cpu")
 
     RTV = RasterToVector()
     RTV.load_state_dict(
