@@ -77,10 +77,10 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     # generalize to all good parameters and several images
-    gaps = [1, 3, 3]
-    distances = [3, 1, 8]
-    lengths = [1, 3, 3]
-    heatmaps_wall = [0.02, 0.02, 0.02]
+    gaps = [1]  # [1, 3, 3]
+    distances = [1]  # [3, 1, 9]
+    lengths = [1]  # [1, 3, 3]
+    heatmaps_wall = [0.02]  # [0.02, 0.02, 0.02]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
@@ -105,17 +105,23 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
                 images += cv2.imread(os.path.join(folder_outputs, file), 1)
             if file.endswith("floorplan.txt") and path_sample[:-4] in file:
                 with open(folder_outputs + file, "r") as reader:
-                    print(reader.readlines())
-                    # a = contains_letter(reader.readlines()[
-                    #     2][:-2].replace("n", "").replace("t", ""))
-
-                    # print(a)
-                    for line_int, line_str in zip(filter(lambda x: not contains_letter(x[:-2].replace("n", "").replace("t", "")), reader.readlines()), filter(lambda x: contains_letter(x[:-2].replace("n", "").replace("t", ""), reader.readlines()))):
+                    # print(reader.readlines())
+                    # x = contains_letter(reader.readlines()[
+                    #                     2].replace("n", "").replace("t", ""))
+                    # print("*****", x)
+                    a = filter(lambda x: not contains_letter(
+                        x.replace("n", "").replace("t", "")), reader.readlines())
+                    print('aaaaaaaa', list(a))
+                    b = filter(lambda x: contains_letter(
+                        x.replace("n", "").replace("t", "")), reader.readlines())
+                    print('bbbbbbbbbbbb************', list(b))
+                    for line_int in a:
                         print("AAAAA")
                         if line_int not in txt_main_int:
                             txt_main_int.append(line_int)
+                    for line_str in b:
                         if line_str not in txt_main_str:
-                            txt_main_int.append(line_str)
+                            txt_main_str.append(line_str)
 
         cv2.imwrite(folder_outputs +
                     path_sample[:-4] + '_sum' + '.png', images)
@@ -139,4 +145,4 @@ if __name__ == '__main__':
     paths = [f for f in listdir(folder_inputs)
              if isfile(join(folder_inputs, f))]
 
-    full_rtv(folder_inputs, folder_outputs, paths)
+    full_rtv(folder_inputs, folder_outputs, paths, RTV)
