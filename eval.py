@@ -90,12 +90,12 @@ def apply_rtv(img, image, output_prefix, gap=-1,
                                   blackThreshold=0.5))
 
 
-gaps = [2, 3, 4, 5, 6]  # range(1, 8, 1)
-distances = [2, 3, 4, 5]  # range(3, 9)
-lengths = [2, 3, 4]  # range(3, 9)
-heatmaps_wall = [0.3, 0.4]  # [x * 0.1 for x in range(2, 9, 1)]
-heatmaps_door = [0.3, 0.5]
-heatmaps_icon = [0.3]
+gaps = [1, 2, 3, 4]  # range(1, 8, 1)
+distances = [1, 2, 3, 4]  # range(3, 9)
+lengths = [1, 2, 3]  # range(3, 9)
+heatmaps_wall = [0.1, 0.2, 0.3, 0.4]  # [x * 0.1 for x in range(2, 9, 1)]
+heatmaps_door = [0.1, 0.2, 0.3]
+heatmaps_icon = [0.1, 0.3]
 # generalize to all good parameters and several images
 
 for path_sample in paths:

@@ -1,23 +1,26 @@
-import dataset, dcgan, options
+import dataset
+import dcgan
+import options
 import torch
 #torch.backends.cudnn.enabled = False
-### Options
+# Options
 args = options.get_train_args()
 
-### Data
+# Data
 data = dataset.get_dataset(args)
 
-### Discriminator
+# Discriminator
 disc = dcgan.get_discriminator(args)
 
-### Generator
+# Generator
 gen = dcgan.get_generator(args)
 
-### Trainer
+# Trainer
 trainer = dcgan.get_trainer(data, gen, disc, args)
 for epoch in range(500):
     trainer.train()
+    trainer.save_checkpoints()
     samples = trainer.test()
     trainer.save_samples(samples)
     trainer.show_samples(samples)
-    #trainer.show_animation()
+    # trainer.show_animation()
