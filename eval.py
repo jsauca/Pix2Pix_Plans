@@ -6,18 +6,6 @@ from os import listdir
 from os.path import isfile, join
 from datetime import datetime
 import cv2 as cv2
-use_cuda = torch.cuda.is_available()
-device = torch.device("cuda:0" if use_cuda else "cpu")  # cpu
-
-RTV = RasterToVector()
-RTV.load_state_dict(
-    torch.load('rtv/checkpoints/rtv.pth', map_location=device))
-
-folder_inputs = 'rtv_inputs/'
-folder_outputs = 'rtv_outputs/{}/'.format(
-    datetime.now().strftime('%m-%d_%H-%M-%S'))
-os.makedirs(folder_outputs)
-paths = [f for f in listdir(folder_inputs) if isfile(join(folder_inputs, f))]
 
 
 def load_img(path_sample):
@@ -26,19 +14,6 @@ def load_img(path_sample):
         img[np.where(img[:, :, 3] == 0)] = 255
     img = transform.resize(img, (256, 256))
     img = img[:, :, :3].astype('float32')
-
-    # image_bis = cv2.Canny(img, 200, 300)
-    # image_bis = np.expand_dims(image_bis, axis=2)
-    # img = np.concatenate((image_bis,image_bis,image_bis), axis=2)
-
-    # minval = np.percentile(img, 2)
-    # maxval = np.percentile(img, 98)
-    # img = np.clip(img, minval, maxval)
-    # img = ((img - minval) / (maxval - minval))
-    # th = 0.3
-    # img[np.where(img > th)] = 1.
-    # img[np.where(img < th)] = 0.
-
     image = torch.from_numpy(img).permute(2, 0, 1).unsqueeze(0)
     return img, image
 
@@ -91,39 +66,61 @@ def apply_rtv(img, image, output_prefix, gap=-1,
                                   blackThreshold=0.5))
 
 
-gaps = [1]  # range(1, 8, 1)
-distances = [1]  # range(3, 9)
-lengths = [1]  # range(3, 9)
-heatmaps_wall = [0.02, 0.05]  # [x * 0.1 for x in range(2, 9, 1)]
-heatmaps_door = [0.02, 0.05]
-heatmaps_icon = [0.02, 0.05]
-# generalize to all good parameters and several images
-for path_sample in paths:
-    print(path_sample)
-    img, image = load_img(folder_inputs + path_sample)
-    for gap in gaps:
-        for distanceThreshold in distances:
-            for lengthThreshold in lengths:
-                for heatmapValueThresholdWall in heatmaps_wall:
-                    for heatmapValueThresholdDoor in heatmaps_door:
-                        for heatmapValueThresholdIcon in heatmaps_icon:
-                            output_prefix = folder_outputs + path_sample[:-4] + \
-                                '_gap_{}_dist_{}_length_{}_wall_{}_door_{}_icon_{}'.format(
-                                    gap, distanceThreshold, lengthThreshold,
-                                    heatmapValueThresholdWall, heatmapValueThresholdDoor, heatmapValueThresholdIcon)
-                            print(output_prefix)
-                            apply_rtv(img, image, output_prefix, gap=gap,
-                                      distanceThreshold=distanceThreshold,
-                                      lengthThreshold=lengthThreshold,
-                                      heatmapValueThresholdWall=heatmapValueThresholdWall,
-                                      heatmapValueThresholdDoor=heatmapValueThresholdDoor,
-                                      heatmapValueThresholdIcon=heatmapValueThresholdIcon)
+def full_rtv(folder_inputs, folder_outputs, paths):
 
-    files = os.listdir(folder_outputs)
-    images = np.zeros((256, 256, 3))
-    for file in files:
-        if file.endswith("result_line.png") and path_sample[:-4] in file:
-            images += cv2.imread(os.path.join(folder_outputs, file), 1)
-        if file.endswith("floorplan.txt") and path_sample[:-4] in file:
-            continue
-    cv2.imwrite(folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
+    gaps = [1, 3]  # range(1, 8, 1)
+    distances = [1, 3]  # range(3, 9)
+    lengths = [1, 3]  # range(3, 9)
+    heatmaps_wall = [0.02]  # [x * 0.1 for x in range(2, 9, 1)]
+    heatmaps_door = [0.02]
+    heatmaps_icon = [0.02]
+    # generalize to all good parameters and several images
+    for path_sample in paths:
+        print(path_sample)
+        img, image = load_img(folder_inputs + path_sample)
+        for gap in gaps:
+            for distanceThreshold in distances:
+                for lengthThreshold in lengths:
+                    for heatmapValueThresholdWall in heatmaps_wall:
+                        for heatmapValueThresholdDoor in heatmaps_door:
+                            for heatmapValueThresholdIcon in heatmaps_icon:
+                                output_prefix = folder_outputs + path_sample[:-4] + \
+                                    '_gap_{}_dist_{}_length_{}_wall_{}_door_{}_icon_{}'.format(
+                                        gap, distanceThreshold, lengthThreshold,
+                                        heatmapValueThresholdWall, heatmapValueThresholdDoor, heatmapValueThresholdIcon)
+                                print(output_prefix)
+                                apply_rtv(img, image, output_prefix, gap=gap,
+                                          distanceThreshold=distanceThreshold,
+                                          lengthThreshold=lengthThreshold,
+                                          heatmapValueThresholdWall=heatmapValueThresholdWall,
+                                          heatmapValueThresholdDoor=heatmapValueThresholdDoor,
+                                          heatmapValueThresholdIcon=heatmapValueThresholdIcon)
+
+        files = os.listdir(folder_outputs)
+        images = np.zeros((256, 256, 3))
+        for file in files:
+            if file.endswith("result_line.png") and path_sample[:-4] in file:
+                images += cv2.imread(os.path.join(folder_outputs, file), 1)
+            if file.endswith("floorplan.txt") and path_sample[:-4] in file:
+                continue
+        cv2.imwrite(folder_outputs +
+                    path_sample[:-4] + '_sum' + '.png', images)
+
+
+if __name__ == '__main__':
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda:0" if use_cuda else "cpu")  # cpu
+
+    RTV = RasterToVector()
+    RTV.load_state_dict(
+        torch.load('rtv/checkpoints/rtv.pth', map_location=device))
+
+    folder_inputs = 'rtv_inputs/'
+    folder_outputs = 'rtv_outputs/{}/'.format(
+        datetime.now().strftime('%m-%d_%H-%M-%S'))
+    os.makedirs(folder_outputs)
+    paths = [f for f in listdir(folder_inputs)
+             if isfile(join(folder_inputs, f))]
+
+    full_rtv(folder_inputs, folder_outputs, paths)

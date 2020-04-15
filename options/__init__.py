@@ -1,5 +1,6 @@
 import argparse
 from .parse import *
+from .parse_test import *
 import json
 import os
 import torch
@@ -33,4 +34,14 @@ def get_train_args():
         print('----> {} = {}'.format(arg, value))
     print('----> {} = {}'.format('use_cuda', use_cuda))
     print('----> {} = {}'.format('device', device))
+    return args
+
+
+def get_test_args():
+    parser = argparse.ArgumentParser()
+    options_test(parser)
+    args = parser.parse_args()
+    print('* Loading options ...')
+    for arg, value in args.__dict__.items():
+        print('----> {} = {}'.format(arg, value))
     return args
