@@ -79,14 +79,13 @@ def apply_rtv(img, image, output_prefix, gap=-1,
         enableAugmentation=True)
 
 
-gaps = [5]  # range(1, 8, 1)
-distances = [5]  # range(3, 9)
-lengths = [5]  # range(3, 9)
-heatmaps_wall = [0.5]  # [x * 0.1 for x in range(2, 9, 1)]
-heatmaps_door = [0.5]
-heatmaps_icon = [0.5]
+gaps = [1]  # range(1, 8, 1)
+distances = [1]  # range(3, 9)
+lengths = [1]  # range(3, 9)
+heatmaps_wall = [0.02, 0.05]  # [x * 0.1 for x in range(2, 9, 1)]
+heatmaps_door = [0.02, 0.05]
+heatmaps_icon = [0.02, 0.05]
 # generalize to all good parameters and several images
-
 for path_sample in paths:
     print(path_sample)
     img, image = load_img(folder_inputs + path_sample)
@@ -108,12 +107,11 @@ for path_sample in paths:
                                       heatmapValueThresholdDoor=heatmapValueThresholdDoor,
                                       heatmapValueThresholdIcon=heatmapValueThresholdIcon)
 
-    files = os.listdir(folder_outputs)
-    images = np.zeros((256, 256, 3))
-    for file in files:
-        print('file', file)
-        if file.endswith("result_line.png") and path_sample[:-4] in file:
-            images += cv2.imread(os.path.join(folder_outputs, file), 1)
-        if file.endswith("floorplan.txt") and path_sample[:-4] in file:
-            continue
-    cv2.imwrite(folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
+    # files = os.listdir(folder_outputs)
+    # images = np.zeros((256, 256, 3))
+    # for file in files:
+    #     if file.endswith("result_line.png") and path_sample[:-4] in file:
+    #         images += cv2.imread(os.path.join(folder_outputs, file), 1)
+    #     if file.endswith("floorplan.txt") and path_sample[:-4] in file:
+    #         continue
+    # cv2.imwrite(folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
