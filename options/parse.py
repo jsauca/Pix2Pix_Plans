@@ -99,7 +99,7 @@ def options_test(parser):
     parser.add_argument('--number',
                         help='number of generated outputs',
                         type=int,
-                        default=1)
+                        default=3)
 
     # Parameters for generator
     parser.add_argument('--gen_version',

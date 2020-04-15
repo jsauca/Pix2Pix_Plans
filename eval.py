@@ -7,7 +7,7 @@ from os.path import isfile, join
 from datetime import datetime
 import cv2 as cv2
 import string
-alphabet = string.ascii_lowercase
+alphabet = string.ascii_lowercase.replace('t', '').replace('n', '')
 
 
 def contains_letter(string):
@@ -77,10 +77,10 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     # generalize to all good parameters and several images
-    gaps = [1]  # [1, 3, 3]
-    distances = [1]  # [3, 1, 9]
-    lengths = [1]  # [1, 3, 3]
-    heatmaps_wall = [0.02]  # [0.02, 0.02, 0.02]
+    gaps = [1, 3, 3, 3]  # [1, 3, 3]
+    distances = [3, 1, 9, 7]  # [3, 1, 9]
+    lengths = [1, 3, 3, 3]  # [1, 3, 3]
+    heatmaps_wall = [0.02, 0.02, 0.02, 0.02]  # [0.02, 0.02, 0.02]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
@@ -96,36 +96,25 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
                       heatmapValueThresholdWall=heatmapValueThresholdWall)
 
         files = os.listdir(folder_outputs)
-        images = np.zeros((256, 256, 3))
+        all_txt = [folder_outputs + file for file in files if path_sample[:-4]
+                   in file and file.endswith("floorplan.txt")]
+        all_lines = [open(txt, "r").readlines()[2:] for txt in all_txt]
+        all_lines = list(set(list(sum(all_lines, []))))
+        txt_main_int = [
+            line for line in all_lines if not contains_letter(line)]
+        txt_main_str = [line for line in all_lines if contains_letter(line)]
+        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
 
-        txt_main_int = []
-        txt_main_str = []
+        images = np.zeros((256, 256, 3))
         for file in files:
-            if file.endswith("result_line.png") and path_sample[:-4] in file:
+            if file.endswith('result_line.png') and path_sample[:-4] in file:
                 images += cv2.imread(os.path.join(folder_outputs, file), 1)
-            if file.endswith("floorplan.txt") and path_sample[:-4] in file:
-                with open(folder_outputs + file, "r") as reader:
-                    # print(reader.readlines())
-                    # x = contains_letter(reader.readlines()[
-                    #                     2].replace("n", "").replace("t", ""))
-                    # print("*****", x)
-                    a = filter(lambda x: not contains_letter(
-                        x.replace("n", "").replace("t", "")), reader.readlines())
-                    print('aaaaaaaa', list(a))
-                    b = filter(lambda x: contains_letter(
-                        x.replace("n", "").replace("t", "")), reader.readlines())
-                    print('bbbbbbbbbbbb************', list(b))
-                    for line_int in a:
-                        print("AAAAA")
-                        if line_int not in txt_main_int:
-                            txt_main_int.append(line_int)
-                    for line_str in b:
-                        if line_str not in txt_main_str:
-                            txt_main_str.append(line_str)
 
         cv2.imwrite(folder_outputs +
                     path_sample[:-4] + '_sum' + '.png', images)
+
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
+            writer_main.writelines(txt_info)
             writer_main.writelines(txt_main_int)
             writer_main.writelines(txt_main_str)
 
