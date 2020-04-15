@@ -77,28 +77,18 @@ def apply_rtv(img, image, output_prefix, gap=-1,
         heatmapValueThresholdDoor=heatmapValueThresholdDoor,  # same threshold
         heatmapValueThresholdIcon=heatmapValueThresholdIcon,  # same threshold
         enableAugmentation=True)
-    dicts = {
-        'corner': corner_pred.max(-1)[1].detach().cpu().numpy(),
-        'icon': icon_pred.max(-1)[1].detach().cpu().numpy(),
-        'room': room_pred.max(-1)[1].detach().cpu().numpy()
-    }
-    cv2.imwrite(output_prefix + 'image.png', img * 255)
-    for info in ['corner', 'icon', 'room']:
-        cv2.imwrite(
-            output_prefix + info + '.png',
-            drawSegmentationImage(dicts[info], blackIndex=0,
-                                  blackThreshold=0.5))
 
 
-gaps = [1, 2, 3, 4]  # range(1, 8, 1)
-distances = [1, 2, 3, 4]  # range(3, 9)
-lengths = [1, 2, 3]  # range(3, 9)
-heatmaps_wall = [0.1, 0.2, 0.3, 0.4]  # [x * 0.1 for x in range(2, 9, 1)]
-heatmaps_door = [0.1, 0.2, 0.3]
-heatmaps_icon = [0.1, 0.3]
+gaps = [5]  # range(1, 8, 1)
+distances = [5]  # range(3, 9)
+lengths = [5]  # range(3, 9)
+heatmaps_wall = [0.5]  # [x * 0.1 for x in range(2, 9, 1)]
+heatmaps_door = [0.5]
+heatmaps_icon = [0.5]
 # generalize to all good parameters and several images
 
 for path_sample in paths:
+    print(path_sample)
     img, image = load_img(folder_inputs + path_sample)
     for gap in gaps:
         for distanceThreshold in distances:
@@ -115,15 +105,15 @@ for path_sample in paths:
                                       distanceThreshold=distanceThreshold,
                                       lengthThreshold=lengthThreshold,
                                       heatmapValueThresholdWall=heatmapValueThresholdWall,
-                                      heatmapValueThresholdDoor=heatmapValueThresholdDoor,  # same threshold
+                                      heatmapValueThresholdDoor=heatmapValueThresholdDoor,
                                       heatmapValueThresholdIcon=heatmapValueThresholdIcon)
 
     files = os.listdir(folder_outputs)
     images = np.zeros((256, 256, 3))
     for file in files:
+        print('file', file)
         if file.endswith("result_line.png") and path_sample[:-4] in file:
             images += cv2.imread(os.path.join(folder_outputs, file), 1)
         if file.endswith("floorplan.txt") and path_sample[:-4] in file:
             continue
-    cv2.imwrite(
-        folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
+    cv2.imwrite(folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
