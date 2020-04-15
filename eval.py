@@ -18,12 +18,12 @@ def load_img(path_sample):
     return img, image
 
 
-def apply_rtv(img, image, output_prefix, gap=-1,
+def apply_rtv(img, image, output_prefix, RTV, gap=-1,
               distanceThreshold=-1,
               lengthThreshold=-1,
               heatmapValueThresholdWall=None,
               heatmapValueThresholdDoor=None,
-              heatmapValueThresholdIcon=None):
+              heatmapValueThresholdIcon=None,):
     output_prefix += '_'
     corner_pred, icon_pred, room_pred = RTV(image)
     corner_pred, icon_pred, room_pred = corner_pred.squeeze(
@@ -66,15 +66,15 @@ def apply_rtv(img, image, output_prefix, gap=-1,
                                   blackThreshold=0.5))
 
 
-def full_rtv(folder_inputs, folder_outputs, paths):
-
-    gaps = [1, 3]  # range(1, 8, 1)
-    distances = [1, 3]  # range(3, 9)
-    lengths = [1, 3]  # range(3, 9)
-    heatmaps_wall = [0.02]  # [x * 0.1 for x in range(2, 9, 1)]
+def full_rtv(folder_inputs, folder_outputs, paths, RTV):
+    # generalize to all good parameters and several images
+    gaps = [1, 3]
+    distances = [1, 3]
+    lengths = [1, 3]
+    heatmaps_wall = [0.02]
     heatmaps_door = [0.02]
     heatmaps_icon = [0.02]
-    # generalize to all good parameters and several images
+
     for path_sample in paths:
         print(path_sample)
         img, image = load_img(folder_inputs + path_sample)
@@ -89,7 +89,7 @@ def full_rtv(folder_inputs, folder_outputs, paths):
                                         gap, distanceThreshold, lengthThreshold,
                                         heatmapValueThresholdWall, heatmapValueThresholdDoor, heatmapValueThresholdIcon)
                                 print(output_prefix)
-                                apply_rtv(img, image, output_prefix, gap=gap,
+                                apply_rtv(img, image, output_prefix, RTV, gap=gap,
                                           distanceThreshold=distanceThreshold,
                                           lengthThreshold=lengthThreshold,
                                           heatmapValueThresholdWall=heatmapValueThresholdWall,
