@@ -1,5 +1,5 @@
 def options_data(parser):
-    ## Parameters for data
+    # Parameters for data
     parser.add_argument('--channels',
                         help='number of channels for generated images',
                         type=int,
@@ -11,7 +11,7 @@ def options_data(parser):
 
 
 def options_disc(parser):
-    ## Parameters for discriminator
+    # Parameters for discriminator
     parser.add_argument('--disc_version',
                         help='version for discriminator',
                         type=int,
@@ -27,7 +27,7 @@ def options_disc(parser):
 
 
 def options_gen(parser):
-    ## Parameters for generator
+    # Parameters for generator
     parser.add_argument('--gen_version',
                         help='version for discriminator',
                         type=int,
@@ -47,7 +47,7 @@ def options_gen(parser):
 
 
 def options_trainer(parser):
-    ## Parameters for trainer
+    # Parameters for trainer
     parser.add_argument('--batch_size',
                         help='batch size for training',
                         type=int,
@@ -71,11 +71,11 @@ def options_trainer(parser):
     parser.add_argument('--learning_rate_decay',
                         help='learning rate decay for optimizer',
                         type=float,
-                        default=0.999) #1
+                        default=0.999)  # 1
     parser.add_argument('--weight_decay',
                         help='weight decay for optimizer',
                         type=float,
-                        default=0) #0 #1e-6 #5e-6
+                        default=0)  # 0 #1e-6 #5e-6
     parser.add_argument('--num_samples',
                         help='number of samples for tester',
                         type=int,
@@ -84,3 +84,37 @@ def options_trainer(parser):
                         help='set to true for debug',
                         type=bool,
                         default=False)
+
+
+def options_test(parser):
+
+    parser.add_argument('--channels',
+                        help='number of channels for generated images',
+                        type=int,
+                        default=3)
+    parser.add_argument('--outputs',
+                        help='folder for outputs',
+                        type=str,
+                        default='outputs/')
+    parser.add_argument('--number',
+                        help='number of generated outputs',
+                        type=int,
+                        default=5)
+
+    # Parameters for generator
+    parser.add_argument('--gen_version',
+                        help='version for discriminator',
+                        type=int,
+                        default=0)
+    parser.add_argument('--gen_scale',
+                        help='scale of hidden dimensions',
+                        type=int,
+                        default=64)
+    parser.add_argument('--gen_checkpoint',
+                        help='checkpoint for generator',
+                        type=str,
+                        default='dcgan/checkpoints/gen_checkpoint_v0.pt')
+    parser.add_argument('--noise_size',
+                        help='size of latent space',
+                        type=int,
+                        default=100)

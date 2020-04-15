@@ -1,6 +1,5 @@
 import argparse
 from .parse import *
-from .parse_test import *
 import json
 import os
 import torch
