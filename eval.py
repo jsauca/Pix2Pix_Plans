@@ -77,6 +77,18 @@ def apply_rtv(img, image, output_prefix, gap=-1,
         heatmapValueThresholdDoor=heatmapValueThresholdDoor,  # same threshold
         heatmapValueThresholdIcon=heatmapValueThresholdIcon,  # same threshold
         enableAugmentation=True)
+    dicts = {
+        'corner': corner_pred.max(-1)[1].detach().cpu().numpy(),
+        'icon': icon_pred.max(-1)[1].detach().cpu().numpy(),
+        'room': room_pred.max(-1)[1].detach().cpu().numpy()
+    }
+
+    for info in ['corner', 'icon', 'room']:
+        cv2.imwrite(
+            output_prefix + '.png',
+            drawSegmentationImage(dicts[info],
+                                  blackIndex=0,
+                                  blackThreshold=0.5))
 
 
 gaps = [1]  # range(1, 8, 1)
@@ -107,11 +119,11 @@ for path_sample in paths:
                                       heatmapValueThresholdDoor=heatmapValueThresholdDoor,
                                       heatmapValueThresholdIcon=heatmapValueThresholdIcon)
 
-    # files = os.listdir(folder_outputs)
-    # images = np.zeros((256, 256, 3))
-    # for file in files:
-    #     if file.endswith("result_line.png") and path_sample[:-4] in file:
-    #         images += cv2.imread(os.path.join(folder_outputs, file), 1)
-    #     if file.endswith("floorplan.txt") and path_sample[:-4] in file:
-    #         continue
-    # cv2.imwrite(folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
+    files = os.listdir(folder_outputs)
+    images = np.zeros((256, 256, 3))
+    for file in files:
+        if file.endswith("result_line.png") and path_sample[:-4] in file:
+            images += cv2.imread(os.path.join(folder_outputs, file), 1)
+        if file.endswith("floorplan.txt") and path_sample[:-4] in file:
+            continue
+    cv2.imwrite(folder_outputs + path_sample[:-4] + '_sum' + '.png', images)
