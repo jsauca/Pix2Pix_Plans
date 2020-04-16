@@ -9,7 +9,7 @@ import cv2 as cv2
 import string
 
 alphabet = string.ascii_lowercase.replace('t', '').replace('n', '')
-threshold_text = 200
+threshold_text = 2
 
 
 def contains_letter(string):
@@ -20,17 +20,20 @@ def contains_letter(string):
 
 
 def dist(x1, x2):
-    sommes = [abs(x1[i] - x2[i]) for i in range(len(x1) - 1)]
+    sommes = [abs(x1[i] - x2[i]) for i in range(len(x1))]
     return sommes
 
 
-def getter_line(line, cursor=3):
-    x = []
-    j = 0
-    for i in range(len(line) - cursor):
+def getter_line(line, cursor=20):
+    x, j = [], 0
+    counter_points = 0
+    for i in range(len(line)):
         if line[i] == " ":
+            if counter_points == 4:
+                break
             x.append(float(line[j:i]))
             j = i + 1
+            counter_points += 1
     return x
 
 
@@ -93,7 +96,6 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
-    # generalize to all good parameters and several images
     gaps = [1, 3]  # [1, 3, 3, 3]  # [1, 3, 3]
     distances = [3]  # [3, 1, 9, 7]  # [3, 1, 9]
     lengths = [1]  # [1, 3, 3, 7]  # [1, 3, 3]
@@ -122,43 +124,37 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
 
         txt_main_int = [
             line for line in all_lines if not contains_letter(line)]
-
-        max_range = len(txt_main_int)
-        global gaping
-        gaping = 0
-        print('MAX', max_range)
-        i = 0
-        while i < max_range - gaping:
-            j = 0
-            while j < max_range:
-                print("DIFFFF", max_range - gaping, gaping)
-                print('IJ', i, j)
-                if j != i:
-                    distances = dist(getter_line(txt_main_int[i], cursor=3), getter_line(
-                        txt_main_int[j], cursor=3))
-                    print("DISTANCE PUTANIN", distances)
-                    # if (distance < threshold_text for distance in distances):
-                    if distances[0] < threshold_text and distances[1] < threshold_text and distances[2] < threshold_text:
-                        txt_main_int.pop(j)
-                        gaping += 1
-
-                        print("VICTOIREEE", i, j)
-                        j -= 1
-                j += 1
-            i += 1
-
         txt_main_str = [line for line in all_lines if contains_letter(line)]
 
-        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
+        def filtering(text):
+            global gaping
+            gaping = 0
+            i = 0
+            while i < len(text) - gaping:
+                j = 0
+                while j < len(text) - gaping:
+                    if j != i:
+                        distances = dist(getter_line(text[i]), getter_line(
+                            text[j]))
+                        if distances[0] < threshold_text and distances[1] < threshold_text and distances[2] < threshold_text and distances[3] < threshold_text:
+                            txt_main_int.pop(j)
+                            gaping += 1
+                            j -= 1
+                    j += 1
+                i += 1
+
+        # sum of masks
         images = np.zeros((256, 256, 3))
         for file in files:
             if file.endswith('result_line.png') and path_sample[:-4] in file:
                 images += cv2.imread(os.path.join(folder_outputs, file), 1)
-
-        break
         cv2.imwrite(folder_outputs +
                     path_sample[:-4] + '_sum' + '.png', images)
 
+        # sum of txts
+        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
+        filtering(txt_main_int)
+        filtering(txt_main_str)
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
             writer_main.writelines(txt_info)
             writer_main.writelines(txt_main_int)
