@@ -25,7 +25,6 @@ def dist(x1, x2):
 
 
 def getter_line(line):
-    print("LINE", line)
     x, j = [], 0
     counter_points = 0
     for i in range(len(line)):
