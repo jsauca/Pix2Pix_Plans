@@ -8,6 +8,7 @@ from datetime import datetime
 import cv2 as cv2
 import string
 alphabet = string.ascii_lowercase.replace('t', '').replace('n', '')
+threshold_text = 2
 
 
 def contains_letter(string):
@@ -15,6 +16,23 @@ def contains_letter(string):
         if letter in string:
             return True
     return False
+
+
+def dist(x1, x2):
+    sommes = [(x1[i] - x2[i])**2 for i in range(len(x1) - 1)]
+    return sum(sommes)
+
+
+def getter_line(line, cursor=3):
+    print(line)
+    x = []
+    j = 0
+    for i in range(len(line) - cursor):
+        if line[i] == " ":
+            x.append(float(line[j:i]))
+            j = i + 1
+    print("XXXXXXXXX", x)
+    return x
 
 
 def load_img(path_sample):
@@ -77,10 +95,11 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     # generalize to all good parameters and several images
-    gaps = [1, 3, 3, 3]  # [1, 3, 3]
-    distances = [3, 1, 9, 7]  # [3, 1, 9]
-    lengths = [1, 3, 3, 3]  # [1, 3, 3]
-    heatmaps_wall = [0.02, 0.02, 0.02, 0.02]  # [0.02, 0.02, 0.02]
+    gaps = [1, 3]  # [1, 3, 3, 3]  # [1, 3, 3]
+    distances = [3]  # [3, 1, 9, 7]  # [3, 1, 9]
+    lengths = [1]  # [1, 3, 3, 7]  # [1, 3, 3]
+    # [0.02, 0.02, 0.02, 0.02]  # [0.02, 0.02, 0.02]
+    heatmaps_wall = [0.02, 0.02]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
@@ -98,18 +117,39 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         files = os.listdir(folder_outputs)
         all_txt = [folder_outputs + file for file in files if path_sample[:-4]
                    in file and file.endswith("floorplan.txt")]
-        all_lines = [open(txt, "r").readlines()[2:] for txt in all_txt]
-        all_lines = list(set(list(sum(all_lines, []))))
+
+        all_lines = [line.replace("\t8", " ").replace("\t6", " ").replace("\t3", " ").replace("\t", " ") for txt in all_txt
+                     for line in open(txt, "r")]
+
+        all_lines = [line for line in all_lines][2:]
+
         txt_main_int = [
             line for line in all_lines if not contains_letter(line)]
-        txt_main_str = [line for line in all_lines if contains_letter(line)]
-        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
 
+        max_range = len(txt_main_int)
+        i, j = 0, 0
+        while i < max_range:
+            while j < max_range:
+                print(i, j)
+                print("111111111", getter_line(
+                    txt_main_int[i], cursor=3), getter_line(txt_main_int[j], cursor=3))
+                if j != i and dist(getter_line(txt_main_int[i], cursor=3), getter_line(txt_main_int[j], cursor=3)) < threshold_text:
+                    txt_main_int.pop(j)
+                    max_range -= 1
+                    print(i, j)
+                j += 1
+            i += 1
+
+        txt_main_str = [line for line in all_lines if contains_letter(line)]
+
+        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
         images = np.zeros((256, 256, 3))
         for file in files:
             if file.endswith('result_line.png') and path_sample[:-4] in file:
                 images += cv2.imread(os.path.join(folder_outputs, file), 1)
+        print(getter_line(all_lines[10]))
 
+        break
         cv2.imwrite(folder_outputs +
                     path_sample[:-4] + '_sum' + '.png', images)
 
