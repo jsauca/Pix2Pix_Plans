@@ -24,14 +24,15 @@ def dist(x1, x2):
     return sommes
 
 
-def getter_line(line, cursor=20):
+def getter_line(line):
+    print("LINE", line)
     x, j = [], 0
     counter_points = 0
     for i in range(len(line)):
         if line[i] == " ":
             if counter_points == 4:
                 break
-            x.append(float(line[j:i]))
+            x.append(float(line[j:i + 1]))
             j = i + 1
             counter_points += 1
     return x
@@ -97,8 +98,8 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     gaps = [1, 3]  # [1, 3, 3, 3]  # [1, 3, 3]
-    distances = [3]  # [3, 1, 9, 7]  # [3, 1, 9]
-    lengths = [1]  # [1, 3, 3, 7]  # [1, 3, 3]
+    distances = [3, 3]  # [3, 1, 9, 7]  # [3, 1, 9]
+    lengths = [1, 3]  # [1, 3, 3, 7]  # [1, 3, 3]
     # [0.02, 0.02, 0.02, 0.02]  # [0.02, 0.02, 0.02]
     heatmaps_wall = [0.02, 0.02]
 
@@ -119,12 +120,13 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         all_txt = [folder_outputs + file for file in files if path_sample[:-4]
                    in file and file.endswith("floorplan.txt")]
         all_lines = [line.replace("\t8", " ").replace("\t6", " ").replace("\t3", " ").replace("\t", " ") for txt in all_txt
-                     for line in open(txt, "r")]
-        all_lines = [line for line in all_lines][2:]
+                     for line in open(txt, "r") if len(line) > 10]
+        all_lines = [line for line in all_lines]
 
         txt_main_int = [
             line for line in all_lines if not contains_letter(line)]
         txt_main_str = [line for line in all_lines if contains_letter(line)]
+        print("TEXT", txt_main_int)
 
         def filtering(text):
             global gaping
@@ -152,9 +154,9 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
                     path_sample[:-4] + '_sum' + '.png', images)
 
         # sum of txts
-        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
         filtering(txt_main_int)
         filtering(txt_main_str)
+        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
             writer_main.writelines(txt_info)
             writer_main.writelines(txt_main_int)
