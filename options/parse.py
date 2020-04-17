@@ -8,6 +8,10 @@ def options_data(parser):
                         help='folder for training data',
                         type=str,
                         default='dataset/')
+    parser.add_argument('--conditional',
+                        help='conditional',
+                        type=bool,
+                        default=False)
 
 
 def options_disc(parser):

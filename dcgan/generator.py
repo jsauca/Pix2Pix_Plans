@@ -7,14 +7,20 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 
 class Generator(nn.Module):
 
-    def __init__(self, version, noise_shape, conditional=False):
+    def __init__(self, version, noise_size, conditional=False):
         super(Generator, self).__init__()
         self._version = version
-        self._noise_shape = noise_shape
+        self._noise_size = noise_size
         self._conditional = conditional
+        if conditional:
+            self._build_cgan()
+
+    def _build_cgan(self):
+        self._cgan = nn.Sequential(nn.Conv2d(1, 1, 3, stride=2, padding=1),
+                                   nn.Flatten(), nn.Linear(32 * 32, self._noise_size))
 
     def get_noise(self, batch_size, training):
-        size = [batch_size] + self._noise_shape
+        size = [batch_size, self._noise_size]
         noise = torch.randn(size=size).to(device)
         if training:
             noise.requires_grad_(True)
@@ -31,11 +37,14 @@ class Generator(nn.Module):
             input = input_or_batch_size
             batch_size = input.size(0)
             noise = self.get_noise(batch_size, training)
-            generated = self._forward(input, noise)
+            prefix = self._cgan(input)
+            if not training:
+                prefix = prefix.detach()
+            gen_input = torch.cat([noise, prefix], 1)
         else:
             batch_size = input_or_batch_size
-            noise = self.get_noise(batch_size, training)
-            generated = self._forward(noise)
+            gen_input = self.get_noise(batch_size, training)
+        generated = self._forward(gen_input)
         if not self.training:
             generated = generated.detach()
         return generated
@@ -45,10 +54,15 @@ class Gen_v0(Generator):
 
     def __init__(self, noise_size, channels, scale):
         super(Gen_v0, self).__init__(version=0,
-                                     noise_shape=[noise_size, 1, 1],
+                                     noise_size=noise_size,
                                      conditional=False)
         self._scale = scale
+        self._noise_size = noise_size
         self._channels = channels
+        if conditional:
+            in_channels = noise_size * 2
+        else:
+            in_channels = noise_size
         self._deconv_layers = nn.Sequential(*[
             Conv_2D(noise_size, 8 * scale, 4, 1, 0, 'relu', transpose=True),
             Conv_2D(8 * scale, 4 * scale, 4, 2, 1, 'relu', transpose=True),
@@ -58,19 +72,24 @@ class Gen_v0(Generator):
         ])
 
     def _forward(self, z):
+        z = z.view(z.size(0), -1, 1, 1)
         x = self._deconv_layers(z)
         return x
 
 
 class Gen_v1(Generator):
 
-    def __init__(self, noise_size, channels, scale):
+    def __init__(self, noise_size, channels, scale, conditional=conditional):
         super(Gen_v1, self).__init__(version=1,
-                                     noise_shape=[noise_size],
-                                     conditional=False)
+                                     noise_size=noise_size,
+                                     conditional=conditional)
         self._scale = scale
         self._channels = channels
-        self._fc = nn.Linear(noise_size, scale * scale * 2)
+        if conditional:
+            in_features = noise_size * 2
+        else:
+            in_features = noise_size
+        self._fc = nn.Linear(in_features, scale * scale * 2)
         self._deconv_layers = nn.Sequential(*[
             ResidualBlock(8 * scale, 8 * scale, 3, 'up', scale),
             ResidualBlock(8 * scale, 4 * scale, 3, 'up', scale),

@@ -14,18 +14,24 @@ class Discriminator(nn.Module):
         raise NotImplementedError
 
     def forward(self, inputs, inputs_bis=None):
+        if self._conditional:
+            inputs = torch.cat([inputs, 1])
+            if inputs_bis != None:
+                inputs_bis = torch.cat([inputs_bis, 1])
         if inputs_bis == None:
             return self._forward(inputs)
         else:
-            ## TO DO : SPEED UP THIS
+            # TO DO : SPEED UP THIS
             return self._forward(inputs), self._forward(inputs_bis)
 
 
 class Disc_v0(Discriminator):
 
-    def __init__(self, channels, scale):
-        super(Disc_v0, self).__init__(version=0)
+    def __init__(self, channels, scale, conditional=False):
+        super(Disc_v0, self).__init__(version=0, conditional=conditional)
         self._scale = scale
+        if conditional:
+            channels += 1
         self._channels = channels
         self._conv_layers = nn.Sequential(*[
             Conv_2D(channels, scale, 4, 2, 1, 'lrelu', batch_norm=False),
@@ -44,9 +50,11 @@ class Disc_v0(Discriminator):
 
 class Disc_v1(Discriminator):
 
-    def __init__(self, channels, scale):
-        super(Disc_v1, self).__init__(version=1)
+    def __init__(self, channels, scale, conditional=False):
+        super(Disc_v1, self).__init__(version=1, conditional=conditional)
         self._scale = scale
+        if conditional:
+            channels += 1
         self._channels = channels
         self._conv_layers = nn.Sequential(*[
             Conv_2D(channels, scale, 3, 1, 1, 'id', False, False, True),
