@@ -11,7 +11,7 @@ def options_data(parser):
     parser.add_argument('--conditional',
                         help='conditional',
                         type=bool,
-                        default=False)
+                        default=True)
 
 
 def options_disc(parser):

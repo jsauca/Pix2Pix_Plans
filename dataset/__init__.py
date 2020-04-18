@@ -35,6 +35,7 @@ def get_dataset(args):
                                              shuffle=False,
                                              drop_last=True,
                                              num_workers=0)
+        return zip(lines, shapes)
     else:
         preprocessing = transforms.Compose([
             transforms.Resize(64),
@@ -51,5 +52,6 @@ def get_dataset(args):
                                            num_workers=0)
         print('* Loading dataset ...')
         print('----> Number of bacthes = {}'.format(len(data)))
-        print('----> Preprocess = {} + {}'.format('normalize', 'resize 256x256'))
+        print('----> Preprocess = {} + {}'.format('normalize',
+                                                  'resize 256x256'))
         return data

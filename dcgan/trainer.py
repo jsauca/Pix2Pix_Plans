@@ -21,7 +21,10 @@ class LR_Scheduler:
         if learning_rate_decay is None or learning_rate_decay == 0.:
             self.step = self.dummy_step
         else:
-            def lr_lambda(epoch): return learning_rate_decay
+
+            def lr_lambda(epoch):
+                return learning_rate_decay
+
             self._g_scheduler = optim.lr_scheduler.MultiplicativeLR(
                 g_opt, lr_lambda)
             self._d_scheduler = optim.lr_scheduler.MultiplicativeLR(
@@ -130,23 +133,35 @@ class Trainer:
         self._d_loss = d_loss
         self._g_loss = g_loss
 
-    def _g_step(self):
+    def _g_step(self, condition=None):
         self._g_opt.zero_grad()
         # self._d_net.eval()
         # self._g_net.train()
-        x_fake = self._g_net(self._args.batch_size, True)
-        d_fake = self._d_net(x_fake)
+        if self._args.conditional:
+            x_fake = self._g_net(condition, True)
+            d_fake = self._d_net(torch.cat([x_fake, condition], 1))
+        else:
+            x_fake = self._g_net(self._args.batch_size, True)
+            d_fake = self._d_net(x_fake)
         loss = self._g_loss(d_fake)
         loss.backward()
         self._g_opt.step()
 
-    def _d_step(self, x_real):
+    def _d_step(self, x_real, condition=None):
         self._d_opt.zero_grad()
         # self._d_net.train()
         # self._g_net.eval()
-        x_fake = self._g_net(self._args.batch_size).detach()
-        d_real, d_fake = self._d_net(x_real, x_fake)
-        loss = self._d_loss(d_real, d_fake, x_real, x_fake)
+        if self._args.conditional:
+            x_fake = self._g_net(condition).detach()
+            cgan_x_fake = torch.cat([x_fake, condition], 1)
+            cgan_x_real = torch.cat([x_real, condition], 1)
+            d_fake = self._d_net(cgan_x_fake)
+            d_real = self._d_net(cgan_x_real)
+            loss = self._d_loss(d_real, d_fake, cgan_x_real, cgan_x_fake)
+        else:
+            x_fake = self._g_net(self._args.batch_size).detach()
+            d_real, d_fake = self._d_net(x_real, x_fake)
+            loss = self._d_loss(d_real, d_fake, x_real, x_fake)
         loss.backward()
         self._d_opt.step()
 
@@ -155,13 +170,19 @@ class Trainer:
         if self._epoch == 1:
             print('* Begin training ...')
         print('--> Training epoch = {} ...'.format(self._epoch))
-        for batch_idx, (x_real, _) in tqdm(enumerate(self._data),
-                                           total=len(self._data)):
-            self._d_step(x_real.to(device))
+        for batch_idx, sample in tqdm(enumerate(self._data),
+                                      total=len(self._data)):
+            if self._args.conditional:
+                x_real = sample[0][0].to(device)
+                condition = sample[1][0].to(device)
+            else:
+                x_real = sample[0]
+                condition = None
+            self._d_step(x_real, condition)
             if np.random.uniform() < self._args.gen_prob:
-                self._g_step()
-            # if batch_idx > 10:
-            #     break
+                self._g_step(condition)
+            if batch_idx > 10:
+                break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
