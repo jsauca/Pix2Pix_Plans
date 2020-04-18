@@ -37,7 +37,7 @@ def get_dataset(args):
                                              drop_last=True,
                                              num_workers=0)
 
-        return zip(lines, shapes), shapes_sampler
+        return (lines, shapes), shapes_sampler
     else:
         preprocessing = transforms.Compose([
             transforms.Resize(64),
