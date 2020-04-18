@@ -44,7 +44,11 @@ class Trainer:
     def __init__(self, data, gen, disc, args):
         print('* Building trainer ...')
         self._args = args
-        self._data = data
+        if args.conditional:
+            self._data = data[0]
+            self._sampler = data[1]
+        else:
+            self._data = data
         self._d_net = disc.to(device)
         self._g_net = gen.to(device)
         self._build_dir()
@@ -170,18 +174,20 @@ class Trainer:
         if self._epoch == 1:
             print('* Begin training ...')
         print('--> Training epoch = {} ...'.format(self._epoch))
-        for batch_idx, sample in tqdm(enumerate(self._data),
-                                      total=len(self._data)):
+        for batch_idx, sample in tqdm(enumerate(self._data)):
             if self._args.conditional:
+
                 x_real = sample[0][0].to(device)
                 condition = sample[1][0].to(device)
+                self._cdt = condition
             else:
                 x_real = sample[0]
                 condition = None
+
             self._d_step(x_real, condition)
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step(condition)
-            if batch_idx > 10:
+            if batch_idx > 3:
                 break
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
@@ -202,17 +208,28 @@ class Trainer:
     def test(self, to_numpy=False):
         print('--> Generating {} samples ...'.format(self._args.num_samples))
         with torch.no_grad():
-            samples = self._g_net(self._args.num_samples) * 0.5 + 0.5
-        if to_numpy:
-            samples = [sample.detach().cpu() for sample in samples]
-        return samples
+            if self._args.conditional:
+                condition = self._cdt
+                samples = self._g_net(condition) * 0.5 + 0.5
+                return condition, samples
+            else:
+                samples = self._g_net(self._args.num_samples) * 0.5 + 0.5
+                return samples
 
     def save_samples(self, samples, nrow=8, normalize=True, padding=2):
+        condition = None
+        if type(samples) == tuple:
+            condition, samples = samples
         print('--> Saving samples = {}'.format(self._epoch_dir))
         vutils.save_image(samples,
                           self._epoch_dir + 'grid.png',
                           normalize=normalize,
                           padding=padding)
+        if condition is not None:
+            vutils.save_image(condition,
+                              self._epoch_dir + 'condition_grid.png',
+                              normalize=normalize,
+                              padding=padding)
         if not self._args.debug:
             for sample_idx, sample in enumerate(samples):
                 vutils.save_image(
@@ -220,25 +237,33 @@ class Trainer:
                     self._epoch_dir + 'sample_{}.png'.format(sample_idx))
 
     def show_samples(self, samples, nrow=8, normalize=False, padding=2):
-        i = vutils.make_grid(samples, normalize=normalize, padding=padding)
-        i = np.transpose(i.cpu().detach(), (1, 2, 0))
-        fig = plt.figure(figsize=(8, 8))
-        plt.axis("off")
-        plt.imshow(i)
-        plt.show()
-        self._samples.append(i)
+
+        def plot(x):
+            i = vutils.make_grid(x, normalize=normalize, padding=padding)
+            i = np.transpose(i.cpu().detach(), (1, 2, 0))
+            fig = plt.figure(figsize=(8, 8))
+            plt.axis("off")
+            plt.imshow(i)
+            plt.show()
+
+        if type(samples) == tuple:
+            plot(samples[0])
+            plot(samples[1])
+        else:
+            plot(samples)
+        #self._samples.append(i)
         # plt.clf()
 
-    def show_animation(self):
-        from IPython.display import HTML
-        fig = plt.figure(figsize=(8, 8))
-        plt.axis("off")
-        ims = [[plt.imshow(i, animated=True)] for i in self._samples]
-        ani = animation.ArtistAnimation(fig,
-                                        ims,
-                                        interval=1000,
-                                        repeat_delay=1000,
-                                        blit=True)
-        print('blaaaaaaaaaaaaaaaaaa')
-        HTML(ani.to_html5_video())
-        # plt.clf()
+    # def show_animation(self):
+    #     from IPython.display import HTML
+    #     fig = plt.figure(figsize=(8, 8))
+    #     plt.axis("off")
+    #     ims = [[plt.imshow(i, animated=True)] for i in self._samples]
+    #     ani = animation.ArtistAnimation(fig,
+    #                                     ims,
+    #                                     interval=1000,
+    #                                     repeat_delay=1000,
+    #                                     blit=True)
+    #     print('blaaaaaaaaaaaaaaaaaa')
+    #     HTML(ani.to_html5_video())
+    #     # plt.clf()

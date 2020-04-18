@@ -29,13 +29,15 @@ def get_dataset(args):
         ])
         shapes = torchvision.datasets.ImageFolder('images/shapes/',
                                                   transform=preprocessing)
-
+        shapes_sampler = torch.utils.data.RandomSampler(
+            shapes, replacement=True, num_samples=args.num_samples)
         shapes = torch.utils.data.DataLoader(shapes,
                                              batch_size=64,
                                              shuffle=False,
                                              drop_last=True,
                                              num_workers=0)
-        return zip(lines, shapes)
+
+        return zip(lines, shapes), shapes_sampler
     else:
         preprocessing = transforms.Compose([
             transforms.Resize(64),

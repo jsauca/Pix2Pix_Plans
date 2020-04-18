@@ -17,7 +17,8 @@ class Generator(nn.Module):
 
     def _build_cgan(self):
         self._cgan = nn.Sequential(nn.Conv2d(1, 1, 3, stride=2, padding=1),
-                                   nn.Flatten(), nn.Linear(32 * 32, self._noise_size))
+                                   nn.Flatten(),
+                                   nn.Linear(32 * 32, self._noise_size))
 
     def get_noise(self, batch_size, training):
         size = [batch_size, self._noise_size]
@@ -52,10 +53,10 @@ class Generator(nn.Module):
 
 class Gen_v0(Generator):
 
-    def __init__(self, noise_size, channels, scale):
+    def __init__(self, noise_size, channels, scale, conditional):
         super(Gen_v0, self).__init__(version=0,
                                      noise_size=noise_size,
-                                     conditional=False)
+                                     conditional=conditional)
         self._scale = scale
         self._noise_size = noise_size
         self._channels = channels
@@ -64,7 +65,7 @@ class Gen_v0(Generator):
         else:
             in_channels = noise_size
         self._deconv_layers = nn.Sequential(*[
-            Conv_2D(noise_size, 8 * scale, 4, 1, 0, 'relu', transpose=True),
+            Conv_2D(in_channels, 8 * scale, 4, 1, 0, 'relu', transpose=True),
             Conv_2D(8 * scale, 4 * scale, 4, 2, 1, 'relu', transpose=True),
             Conv_2D(4 * scale, 2 * scale, 4, 2, 1, 'relu', transpose=True),
             Conv_2D(2 * scale, scale, 4, 2, 1, 'relu', transpose=True),
@@ -79,7 +80,7 @@ class Gen_v0(Generator):
 
 class Gen_v1(Generator):
 
-    def __init__(self, noise_size, channels, scale, conditional=conditional):
+    def __init__(self, noise_size, channels, scale, conditional):
         super(Gen_v1, self).__init__(version=1,
                                      noise_size=noise_size,
                                      conditional=conditional)
