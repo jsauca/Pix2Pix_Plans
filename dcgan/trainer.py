@@ -174,7 +174,8 @@ class Trainer:
         if self._epoch == 1:
             print('* Begin training ...')
         print('--> Training epoch = {} ...'.format(self._epoch))
-        for batch_idx, sample in tqdm(enumerate(self._data), total=156):
+        dat = enumerate(self._data)
+        for batch_idx, sample in tqdm(dat, total=len(dat)):
             if self._args.conditional:
 
                 x_real = sample[0][0].to(device)
