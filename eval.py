@@ -105,6 +105,7 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
         for gap, distanceThreshold, lengthThreshold, heatmapValueThresholdWall in zip(gaps, distances, lengths, heatmaps_wall):
+            print('AAAA')
             output_prefix = folder_outputs + path_sample[:-4] + \
                 '_gap_{}_dist_{}_length_{}_wall_{}'.format(
                 gap, distanceThreshold, lengthThreshold,
@@ -125,7 +126,6 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         txt_main_int = [
             line for line in all_lines if not contains_letter(line)]
         txt_main_str = [line for line in all_lines if contains_letter(line)]
-        print("TEXT", txt_main_int)
 
         def filtering(text):
             global gaping
