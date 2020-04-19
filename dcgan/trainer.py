@@ -46,7 +46,7 @@ class Trainer:
         self._args = args
         if args.conditional:
             self._len_data = len(data[0][0])
-            self._data = zip(*data[0])
+            self._data = data[0]
             self._sampler = data[1]
         else:
             self._data = data
@@ -176,7 +176,7 @@ class Trainer:
         if self._epoch == 1:
             print('* Begin training ...')
         print('--> Training epoch = {} ...'.format(self._epoch))
-        for batch_idx, sample in tqdm(enumerate(self._data),
+        for batch_idx, sample in tqdm(enumerate(zip(*self._data)),
                                       total=self._len_data):
             if self._args.conditional:
 
