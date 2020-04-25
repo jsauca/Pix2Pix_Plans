@@ -23,7 +23,7 @@ def options_disc(parser):
     parser.add_argument('--disc_scale',
                         help='scale of hidden dimensions',
                         type=int,
-                        default=64)
+                        default=256)
     parser.add_argument('--disc_checkpoint',
                         help='checkpoint for discriminator',
                         type=str,
@@ -39,7 +39,7 @@ def options_gen(parser):
     parser.add_argument('--gen_scale',
                         help='scale of hidden dimensions',
                         type=int,
-                        default=64)
+                        default=256)
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
@@ -113,7 +113,7 @@ def options_test(parser):
     parser.add_argument('--gen_scale',
                         help='scale of hidden dimensions',
                         type=int,
-                        default=64)
+                        default=256)
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
