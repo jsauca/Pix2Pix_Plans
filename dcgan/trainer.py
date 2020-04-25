@@ -254,7 +254,7 @@ class Trainer:
             plot(samples[1])
         else:
             plot(samples)
-        #self._samples.append(i)
+        # self._samples.append(i)
         # plt.clf()
 
     # def show_animation(self):
