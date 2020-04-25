@@ -7,6 +7,7 @@ import torchvision.utils as vutils
 from skimage import io, transform
 
 import dcgan
+from dataset import get_dataset_test
 from rtv.network import RasterToVector
 from rtv.ip import *
 import options
@@ -33,9 +34,8 @@ def test(RTV, conditional=True):
     # if conditional give one or several shapes
 
     if conditional:
-        samples = []
-        for shape in os.listdir(args.shape_folder):
-            samples += gen(shape)
+        shapes = get_dataset_test(args)
+        samples = gen(shapes)
     else:
         samples = gen(args.number)
     exit()

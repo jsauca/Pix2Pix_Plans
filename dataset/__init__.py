@@ -58,3 +58,21 @@ def get_dataset(args):
         print('----> Preprocess = {} + {}'.format('normalize',
                                                   'resize 256x256'))
         return data
+
+
+def get_dataset_test(args):
+    data_dir = args.shape_folder
+    preprocessing = transforms.Compose([
+        transforms.Grayscale(num_output_channels=1),
+        transforms.Resize(256),
+        transforms.ToTensor(),
+    ])
+    shapes = torchvision.datasets.ImageFolder(data_dir,
+                                              transform=preprocessing)
+    shapes = torch.utils.data.DataLoader(shapes,
+                                         batch_size=1,
+                                         shuffle=False,
+                                         drop_last=True,
+                                         num_workers=0)
+
+    return shapes
