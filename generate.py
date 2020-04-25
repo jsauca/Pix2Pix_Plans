@@ -16,7 +16,7 @@ from eval import full_rtv
 device = torch.device("cpu")
 
 args = options.get_test_args()
-gen = dcgan.get_generator(args)
+gen = dcgan.get_generator(args).to(device)
 
 dir = os.path.join(args.outputs,
                    datetime.now().strftime('%m-%d_%H-%M-%S') + '/')
@@ -36,16 +36,13 @@ def test(RTV, conditional=True):
         samples = []
         shapes = get_dataset_test(args)
         for _, shape in enumerate(shapes):
-            condition = shape[0][0].to(device)
-            samples += gen(condition) * 0.5 + 0.5
-            samples += gen(shapes)
+            condition = shape[0][0].unsqueeze(dim=0).to(device)
+            samples += (gen(condition) * 0.5 + 0.5)
 
     else:
         samples = gen(args.number)
-    exit()
 
     print('--> Saving samples = {}'.format(dir))
-
     for sample_idx, sample in enumerate(samples):
         vutils.save_image(
             sample,

@@ -9,7 +9,7 @@ import cv2 as cv2
 import string
 
 alphabet = string.ascii_lowercase.replace('t', '').replace('n', '')
-threshold_text = 2
+threshold_text = 2   # can adapt, test with Revit
 
 
 def contains_letter(string):
@@ -96,11 +96,10 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
-    gaps = [1, 3]  # [1, 3, 3, 3]  # [1, 3, 3]
-    distances = [3, 3]  # [3, 1, 9, 7]  # [3, 1, 9]
-    lengths = [1, 3]  # [1, 3, 3, 7]  # [1, 3, 3]
-    # [0.02, 0.02, 0.02, 0.02]  # [0.02, 0.02, 0.02]
-    heatmaps_wall = [0.02, 0.02]
+    gaps = [5]  # [1, 3, 3, 5, 7]
+    distances = [5]  # [3, 3, 5, 5, 7]
+    lengths = [5]  # [1, 3, 3, 5, 7]
+    heatmaps_wall = [0.01]  # [0.01, 0.01, 0.01, 0.01, 0.01]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
@@ -154,9 +153,9 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         # sum of txts
         filtering(txt_main_int)
         filtering(txt_main_str)
-        txt_info = ['256 256 \n', str(len(txt_main_int)) + '\n']
+        for i, line in enumerate(txt_main_int):
+            txt_main_int[i] = line[:-4] + "\twall\t" + line[-4:]
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
-            writer_main.writelines(txt_info)
             writer_main.writelines(txt_main_int)
             writer_main.writelines(txt_main_str)
 
