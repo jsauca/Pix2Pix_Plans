@@ -36,8 +36,7 @@ def test(RTV, conditional=True):
         samples = []
         shapes = get_dataset_test(args)
         for _, shape in enumerate(shapes):
-            x_real = shape[0][0].to(device)
-            condition = shape[1][0].to(device)
+            condition = shape[0][0].to(device)
             samples += gen(condition) * 0.5 + 0.5
             samples += gen(shapes)
 
