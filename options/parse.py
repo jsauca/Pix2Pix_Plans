@@ -47,7 +47,7 @@ def options_gen(parser):
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,
-                        default=100)
+                        default=400)
 
 
 def options_trainer(parser):
@@ -121,7 +121,7 @@ def options_test(parser):
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,
-                        default=100)
+                        default=400)
     parser.add_argument('--shape_folder',
                         help='folder for input shapes',
                         type=str,
