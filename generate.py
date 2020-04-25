@@ -27,11 +27,14 @@ RTV.load_state_dict(
     torch.load('rtv/checkpoints/rtv.pth', map_location=device))
 
 
-def test(RTV):
+def test(RTV, conditional=True):
     print('--> Generating {} samples ...'.format(dir))
     # generate outputs
     # if conditional give one or several shapes
-    samples = gen(args.number)
+    if conditional:
+        samples = gen(args.shape_folder)
+    else:
+        samples = gen(args.number)
 
     print('--> Saving samples = {}'.format(dir))
     for sample_idx, sample in enumerate(samples):
