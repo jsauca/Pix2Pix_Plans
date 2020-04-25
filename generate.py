@@ -20,6 +20,7 @@ gen = dcgan.get_generator(args)
 
 dir = os.path.join(args.outputs,
                    datetime.now().strftime('%m-%d_%H-%M-%S') + '/')
+
 print('----> Creating directory = {}'.format(dir))
 os.makedirs(dir)
 
@@ -30,8 +31,6 @@ RTV.load_state_dict(
 
 def test(RTV, conditional=True):
     print('--> Generating {} samples ...'.format(dir))
-    # generate outputs
-    # if conditional give one or several shapes
 
     if conditional:
         shapes = get_dataset_test(args)
