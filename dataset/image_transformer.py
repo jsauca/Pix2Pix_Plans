@@ -1,6 +1,9 @@
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
+import os
+from os import listdir
+from os.path import isfile, join
 
 
 def process(path):
@@ -52,8 +55,17 @@ def process(path):
     return image, new, shape
 
 
-path = 'sample2.png'
-out = process(path)
-for img in out:
-    plt.imshow(img)
-    plt.show()
+"""Structure for torvision loader"""
+# os.makedirs('images')
+# os.makedirs('images/lines')
+os.makedirs('images/lines/lines')
+# os.makedirs('images/shapes')
+os.makedirs('images/shapes/shapes')
+mypath = 'dataset/images64/'
+onlyfiles = [join(mypath, f) for f in listdir(mypath)
+             if isfile(join(mypath, f)) and f[-1] == 'g']
+
+for idx, path in enumerate(onlyfiles):
+    image, new, shape = process(path)
+    plt.imsave('images/lines/lines/line_{}.png'.format(idx), new)
+    plt.imsave('images/shapes/shapes/shape_{}.png'.format(idx), shape)
