@@ -126,3 +126,7 @@ def options_test(parser):
                         help='folder for input shapes',
                         type=str,
                         default='inputs/shapes/')
+    parser.add_argument('--conditional',
+                        help='conditional',
+                        type=bool,
+                        default=True)

@@ -11,10 +11,10 @@ from rtv.network import RasterToVector
 from rtv.ip import *
 import options
 from eval import full_rtv
+
 device = torch.device("cpu")
 
 args = options.get_test_args()
-
 gen = dcgan.get_generator(args)
 
 dir = os.path.join(args.outputs,
@@ -31,11 +31,13 @@ def test(RTV, conditional=True):
     print('--> Generating {} samples ...'.format(dir))
     # generate outputs
     # if conditional give one or several shapes
+    samples = []
     if conditional:
-        samples = gen(args.shape_folder)
+        for shape in os.listdir(args.shape_folder):
+            samples += gen(shape)
     else:
         samples = gen(args.number)
-
+    exit()
     print('--> Saving samples = {}'.format(dir))
     for sample_idx, sample in enumerate(samples):
         vutils.save_image(

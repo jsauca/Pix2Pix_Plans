@@ -10,7 +10,7 @@ def get_dataset(args):
     if args.conditional:
         data_dir = args.data_folder
         preprocessing = transforms.Compose([
-            transforms.Resize(64),
+            transforms.Resize(256),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
@@ -18,14 +18,14 @@ def get_dataset(args):
                                                  transform=preprocessing)
 
         lines = torch.utils.data.DataLoader(lines,
-                                            batch_size=64,
+                                            batch_size=args.batch_size,
                                             shuffle=False,
                                             drop_last=True,
                                             num_workers=0)
 
         preprocessing = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
-            transforms.Resize(64),
+            transforms.Resize(256),
             transforms.ToTensor(),
         ])
         shapes = torchvision.datasets.ImageFolder(data_dir + '/shapes/',
@@ -33,7 +33,7 @@ def get_dataset(args):
         shapes_sampler = torch.utils.data.RandomSampler(
             shapes, replacement=True, num_samples=args.num_samples)
         shapes = torch.utils.data.DataLoader(shapes,
-                                             batch_size=64,
+                                             batch_size=args.batch_size,
                                              shuffle=False,
                                              drop_last=True,
                                              num_workers=0)
@@ -41,7 +41,7 @@ def get_dataset(args):
         return (lines, shapes), shapes_sampler
     else:
         preprocessing = transforms.Compose([
-            transforms.Resize(64),
+            transforms.Resize(256),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
