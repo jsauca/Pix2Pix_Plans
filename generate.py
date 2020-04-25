@@ -30,6 +30,7 @@ RTV.load_state_dict(
 def test(RTV):
     print('--> Generating {} samples ...'.format(dir))
     # generate outputs
+    # if conditional give one or several shapes
     samples = gen(args.number)
 
     print('--> Saving samples = {}'.format(dir))
