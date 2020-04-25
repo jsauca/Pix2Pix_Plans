@@ -23,7 +23,7 @@ def options_disc(parser):
     parser.add_argument('--disc_scale',
                         help='scale of hidden dimensions',
                         type=int,
-                        default=256)
+                        default=64)
     parser.add_argument('--disc_checkpoint',
                         help='checkpoint for discriminator',
                         type=str,
@@ -39,7 +39,7 @@ def options_gen(parser):
     parser.add_argument('--gen_scale',
                         help='scale of hidden dimensions',
                         type=int,
-                        default=256)
+                        default=64)
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
@@ -47,7 +47,7 @@ def options_gen(parser):
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,
-                        default=400)
+                        default=100)
 
 
 def options_trainer(parser):
@@ -55,7 +55,7 @@ def options_trainer(parser):
     parser.add_argument('--batch_size',
                         help='batch size for training',
                         type=int,
-                        default=16)
+                        default=64)
     parser.add_argument('--gen_prob',
                         help='probability/frequency of training generator',
                         type=float,
@@ -113,7 +113,7 @@ def options_test(parser):
     parser.add_argument('--gen_scale',
                         help='scale of hidden dimensions',
                         type=int,
-                        default=256)
+                        default=64)
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
@@ -121,7 +121,7 @@ def options_test(parser):
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,
-                        default=400)
+                        default=100)
     parser.add_argument('--shape_folder',
                         help='folder for input shapes',
                         type=str,
