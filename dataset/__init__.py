@@ -67,7 +67,7 @@ def get_dataset_test(args):
         transforms.Resize(64),
         transforms.ToTensor(),
     ])
-    shapes = torchvision.datasets.ImageFolder(data_dir,
+    shapes = torchvision.datasets.ImageFolder(data_dir + '/shapes',
                                               transform=preprocessing)
     shapes = torch.utils.data.DataLoader(shapes,
                                          batch_size=1,

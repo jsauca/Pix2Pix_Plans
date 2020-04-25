@@ -33,12 +33,20 @@ def test(RTV, conditional=True):
     print('--> Generating {} samples ...'.format(dir))
 
     if conditional:
+        samples = []
         shapes = get_dataset_test(args)
-        samples = gen(shapes)
+        for _, shape in enumerate(shapes):
+            x_real = shape[0][0].to(device)
+            condition = shape[1][0].to(device)
+            samples += gen(condition) * 0.5 + 0.5
+            samples += gen(shapes)
+
     else:
         samples = gen(args.number)
     exit()
+
     print('--> Saving samples = {}'.format(dir))
+
     for sample_idx, sample in enumerate(samples):
         vutils.save_image(
             sample,
