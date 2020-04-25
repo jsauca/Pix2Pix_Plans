@@ -31,8 +31,9 @@ def test(RTV, conditional=True):
     print('--> Generating {} samples ...'.format(dir))
     # generate outputs
     # if conditional give one or several shapes
-    samples = []
+
     if conditional:
+        samples = []
         for shape in os.listdir(args.shape_folder):
             samples += gen(shape)
     else:
