@@ -10,7 +10,7 @@ def get_dataset(args):
     if args.conditional:
         data_dir = args.data_folder
         preprocessing = transforms.Compose([
-            transforms.Resize(256),
+            transforms.Resize(64),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
@@ -25,7 +25,7 @@ def get_dataset(args):
 
         preprocessing = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
-            transforms.Resize(256),
+            transforms.Resize(64),
             transforms.ToTensor(),
         ])
         shapes = torchvision.datasets.ImageFolder(data_dir + '/shapes/',
@@ -41,7 +41,7 @@ def get_dataset(args):
         return (lines, shapes), shapes_sampler
     else:
         preprocessing = transforms.Compose([
-            transforms.Resize(256),
+            transforms.Resize(64),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
@@ -56,5 +56,5 @@ def get_dataset(args):
         print('* Loading dataset ...')
         print('----> Number of bacthes = {}'.format(len(data)))
         print('----> Preprocess = {} + {}'.format('normalize',
-                                                  'resize 256x256'))
+                                                  'resize ******256x256'))
         return data
