@@ -14,14 +14,9 @@ class Discriminator(nn.Module):
         raise NotImplementedError
 
     def forward(self, inputs, inputs_bis=None):
-        # if self._conditional:
-        #     inputs = torch.cat([inputs, 1])
-        #     if inputs_bis != None:
-        #         inputs_bis = torch.cat([inputs_bis, 1])
         if inputs_bis == None:
             return self._forward(inputs)
         else:
-            # TO DO : SPEED UP THIS
             return self._forward(inputs), self._forward(inputs_bis)
 
 
