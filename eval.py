@@ -96,10 +96,10 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
-    gaps = [5]  # [1, 3, 3, 5, 7]
-    distances = [5]  # [3, 3, 5, 5, 7]
-    lengths = [5]  # [1, 3, 3, 5, 7]
-    heatmaps_wall = [0.01]  # [0.01, 0.01, 0.01, 0.01, 0.01]
+    gaps = [1, 3, 3, 5, 7]
+    distances = [3, 3, 5, 5, 7]
+    lengths = [1, 3, 3, 5, 7]
+    heatmaps_wall = [0.01, 0.01, 0.01, 0.01, 0.01]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
@@ -154,7 +154,7 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         filtering(txt_main_int)
         filtering(txt_main_str)
         for i, line in enumerate(txt_main_int):
-            txt_main_int[i] = line[:-4] + "\twall\t" + line[-4:]
+            txt_main_int[i] = line[:-5] + "\t wall\t" + line[-5:]
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
             writer_main.writelines(txt_main_int)
             writer_main.writelines(txt_main_str)
