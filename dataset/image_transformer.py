@@ -55,7 +55,7 @@ def process(path):
     return image, new, shape
 
 
-"""Structure for torvision loader"""
+"""Structure for torchvision loader"""
 # os.makedirs('images')
 # os.makedirs('images/lines')
 os.makedirs('images/lines/lines')

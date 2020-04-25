@@ -122,3 +122,7 @@ def options_test(parser):
                         help='size of latent space',
                         type=int,
                         default=100)
+    parser.add_argument('--shape_folder',
+                        help='folder for input shapes',
+                        type=str,
+                        default='inputs/shapes/')
