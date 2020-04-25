@@ -1,0 +1,6 @@
+numpy
+opencv-python
+PuLP
+scikit-image
+scipy
+
