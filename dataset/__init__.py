@@ -14,7 +14,7 @@ def get_dataset(args):
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
-        lines = torchvision.datasets.ImageFolder(data_dir + 'lines/',
+        lines = torchvision.datasets.ImageFolder(data_dir + '/lines/',
                                                  transform=preprocessing)
 
         lines = torch.utils.data.DataLoader(lines,
@@ -28,7 +28,7 @@ def get_dataset(args):
             transforms.Resize(64),
             transforms.ToTensor(),
         ])
-        shapes = torchvision.datasets.ImageFolder(data_dir + 'shapes/',
+        shapes = torchvision.datasets.ImageFolder(data_dir + '/shapes/',
                                                   transform=preprocessing)
         shapes_sampler = torch.utils.data.RandomSampler(
             shapes, replacement=True, num_samples=args.num_samples)
