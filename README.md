@@ -8,7 +8,7 @@ To train the Pix2pix run ```python3 train.py```
 Change the options for training wanted in options/parse.py, e.g. batch size, condtional or not, learning rate, version of generator ...
 The checkpoints for generator and discriminator, with samples generated are saved under temp/ . Import new checkpoints by modifying options and placing them under dcgan/checkpoints. 
 ## Processing with RTV (SEG + IP)
-Run ```python3 Eval.py ``` to evaluate RTV(Segmentation Network + IP-fusion) on inputs placed manually in rtv_inputs, outputs are saved in rtv_outputs. It allows for tuning of IP hyperparameters.
+Run ```python3 eval.py ``` to evaluate RTV(Segmentation Network + IP-fusion) on inputs placed manually in rtv_inputs, outputs are saved in rtv_outputs. It allows for tuning of IP hyperparameters.
 ## Generation
 When the training is complete and IP parameters tuned, one can generate new floorplans based on shapes of floorplans put in inputs/ if conditional or number of wanted free generations by specifying a number if not conditional. Run ```python3 generate.py``` Use latest checkpoint of generator to generate. 
 # Conversion to 3D models 
