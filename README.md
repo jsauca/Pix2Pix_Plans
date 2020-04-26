@@ -1,6 +1,6 @@
 # Pix2Pix with Plans
 ## Requirements
-Install requirements in requirements.txt
+Install requirements found in requirements.txt by running ```pip3 install -r requirements.txt```
 ## Dataset
 Put your plans in dataset/ , run ```python3 image_transformer.py``` to process the data and create shapes. If already in lines and shapes, put directly under dataset/images/
 ## Training of Pix2Pix
