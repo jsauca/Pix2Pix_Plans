@@ -2,7 +2,7 @@
 ## Requirements
 Install requirements found in requirements.txt by running ```pip3 install -r requirements.txt```
 ## Dataset
-Put your plans in dataset/ , run ```python3 image_transformer.py``` to process the data and create shapes. If already in lines and shapes, put directly under dataset/images/
+Put your plans in dataset/ , run ```python3 image_transformer.py``` to process the data and create shapes. If already in lines(walls+windows/doors) and shapes, put directly under dataset/images/ following the same structure compatible with Torchvision data loader.
 ## Training of Pix2Pix
 To train the Pix2pix run ```python3 train.py```
 Change the options for training wanted in options/parse.py, e.g. batch size, condtional or not, learning rate, version of generator ...
