@@ -96,10 +96,10 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
-    gaps = [1, 3, 3, 5, 7]
-    distances = [3, 3, 5, 5, 7]
-    lengths = [1, 3, 3, 5, 7]
-    heatmaps_wall = [0.01, 0.01, 0.01, 0.01, 0.01]
+    gaps = [1, 3, 3, 5, 7]  # [1]
+    distances = [3, 3, 5, 5, 7]  # [1]
+    lengths = [1, 3, 3, 5, 7]  # [1]
+    heatmaps_wall = [0.01, 0.01, 0.01, 0.01, 0.01]  # [0.01]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)

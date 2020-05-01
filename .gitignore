@@ -1,6 +1,7 @@
 *.pyc
 temp/*
-dataset/cifar10/*
+dataset/vectors/*
+dataset/vectors.zip
 #rtv_inputs/*
 rtv_outputs/*
 outputs/*
