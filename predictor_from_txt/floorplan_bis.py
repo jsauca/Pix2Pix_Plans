@@ -3,8 +3,8 @@ from torch.utils.data import Dataset
 import numpy as np
 import time
 
-#from plane_dataset_scannet import PlaneDatasetScanNet
-#from augmentation import *
+# from plane_dataset_scannet import PlaneDatasetScanNet
+# from augmentation import *
 from IP_utils import *
 from skimage import measure
 import cv2
@@ -20,7 +20,7 @@ def lineRange(line):
 
 
 def pointDistance(point_1, point_2):
-    #return np.sqrt(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2))
+    # return np.sqrt(pow(point_1[0] - point_2[0], 2) + pow(point_1[1] - point_2[1], 2))
     return max(abs(point_1[0] - point_2[0]), abs(point_1[1] - point_2[1]))
 
 
@@ -75,7 +75,7 @@ def findConnections(line_1, line_2, gap):
     if direction_1 == direction_2:
         return [-1, -1], (0, 0)
 
-    #print(fixedValue_1, min_1, max_1, fixedValue_2, min_2, max_2)
+    # print(fixedValue_1, min_1, max_1, fixedValue_2, min_2, max_2)
     if min(fixedValue_1, max_2) < max(fixedValue_1, min_2) - gap or min(
             fixedValue_2, max_1) < max(fixedValue_2, min_1) - gap:
         return [-1, -1], (0, 0)
@@ -121,23 +121,23 @@ def lines2Corners(lines, gap):
                 continue
             if calcLineDirection(line_1) == calcLineDirection(
                     line_2) and isManhattan(line_1) and isManhattan(line_2):
-                #print('overlap', line_1, line_2, connections)
+                # print('overlap', line_1, line_2, connections)
                 success = False
-                #exit(1)
+                # exit(1)
                 continue
             if calcLineDirection(line_1) == 1:
                 continue
 
             indices = [lineIndex_1, lineIndex_2]
-            #print(lineIndex_1, lineIndex_2, connections)
+            # print(lineIndex_1, lineIndex_2, connections)
             for c in range(2):
                 if connections[c] in [0, 1
-                                     ] and connections[c] in lineConnections[
-                                         indices[c]] and isManhattan(
-                                             line_1) and isManhattan(line_2):
-                    #print('duplicate corner', line_1, line_2, connections)
+                                      ] and connections[c] in lineConnections[
+                        indices[c]] and isManhattan(
+                        line_1) and isManhattan(line_2):
+                    # print('duplicate corner', line_1, line_2, connections)
                     success = False
-                    #exit(1)
+                    # exit(1)
                     continue
 
                 lineConnections[indices[c]][connections[c]] = True
@@ -164,6 +164,7 @@ def getRoomLabelMap():
     labelMap['dining_room'] = 9
     labelMap['laundry_room'] = 10
     labelMap['PS'] = 10
+    labelMap['point'] = 10
     return labelMap
 
 
@@ -176,6 +177,7 @@ def getIconLabelMap():
     labelMap['washing_basin'] = 5
     labelMap['special'] = 6
     labelMap['stairs'] = 7
+    labelMap['point'] = 7
     return labelMap
 
 
@@ -222,7 +224,8 @@ def augmentSample(options, image, background_colors=[], split='train'):
     transformation[1][2] = offset_y
 
     if len(background_colors) == 0:
-        full_image = np.full((options.height, options.width, 3), fill_value=255)
+        full_image = np.full(
+            (options.height, options.width, 3), fill_value=255)
     else:
         full_image = background_colors[np.random.choice(
             np.arange(len(background_colors), dtype=np.int32),
@@ -230,7 +233,7 @@ def augmentSample(options, image, background_colors=[], split='train'):
                 (options.height, options.width, 3))
         pass
 
-    #full_image = np.full((options.height, options.width, 3), fill_value=-1, dtype=np.float32)
+    # full_image = np.full((options.height, options.width, 3), fill_value=-1, dtype=np.float32)
     full_image[offset_y:offset_y + image_sizes[0], offset_x:offset_x +
                image_sizes[1]] = cv2.resize(image,
                                             (image_sizes[1], image_sizes[0]))
@@ -255,17 +258,14 @@ def transformPoint(transformation, point):
     return tuple(np.round(point[:2] / point[2]).astype(np.int32).tolist())
 
 
-## Plane dataset class
+# Plane dataset class
 def getitem(path, info_width=512, info_height=512):
     labelMap = loadLabelMap()
     image_width, image_height = info_width, info_height
 
-    #def transformPoint(x, y, resize=False):
-    #if resize:
-    #return (int(round(float(x) * self.options.width / image_width)), int(round(float(y) * self.options.height / image_height)))
-    #else:
-    #return (int(round(float(x))), int(round(float(y))))
-
+    # def transformPoint(x, y, ref):
+    #     return (int(round(float(x) * info_width / ref)), int(round(float(y) * info_height / ref)))
+    size = info_width
     walls = []
     wall_types = []
     doors = []
@@ -294,9 +294,56 @@ def getitem(path, info_width=512, info_height=512):
                 pass
             continue
         pass
+    numbers = []
+
+    def get_numbers(bla):
+        if type(bla) == int:
+            numbers.append(bla)
+        elif type(bla) == list or type(bla) == tuple:
+            for _bla in bla:
+                get_numbers(_bla)
+        elif type(bla) == dict:
+            for key, item in bla.items():
+                get_numbers(item)
+    get_numbers(walls)
+    get_numbers(doors)
+    get_numbers(semantics)
+    ref = max(numbers) + 10
+
+    def _convertToPoint(x, y):
+        return (int(round(float(x) * size / ref)), int(round(float(y) * size / ref)))
+
+    walls = []
+    wall_types = []
+    doors = []
+    semantics = {}
+    with open(path) as info_file:
+        line_index = 0
+        for line in info_file:
+            line = line.split('\t')
+            label = line[4].strip()
+            if label == 'wall':
+                walls.append(
+                    (_convertToPoint(line[0],
+                                     line[1]), _convertToPoint(line[2], line[3])))
+                wall_types.append(int(line[5].strip()) - 1)
+            elif label in ['door', 'window']:
+                doors.append(
+                    (_convertToPoint(line[0],
+                                     line[1]), _convertToPoint(line[2], line[3])))
+            else:
+                if label not in semantics:
+                    semantics[label] = []
+                    pass
+                semantics[label].append(
+                    (_convertToPoint(line[0],
+                                     line[1]), _convertToPoint(line[2], line[3])))
+                pass
+            continue
+        pass
 
     gap = 5
-    #print(semantics)
+    # print(semantics)
     invalid_indices = {}
     for wall_index_1, (wall_1, wall_type_1) in enumerate(zip(walls,
                                                              wall_types)):
@@ -324,14 +371,14 @@ def getitem(path, info_width=512, info_height=512):
     wall_index = background_mask.min()
     background_colors = []
 
-    #walls = connectWalls(walls, roomSegmentation, gap=gap)
+    # walls = connectWalls(walls, roomSegmentation, gap=gap)
 
     corners, success = lines2Corners(walls, gap=gap)
     if not success:
-        #print('warning', index, self.imagePaths[index][1])
+        # print('warning', index, self.imagePaths[index][1])
         pass
 
-    ##AAA
+    # AAA
     # if self.split == 'train':
     #     image, transformation = augmentSample(self.options, image,
     #                                           background_colors)
@@ -355,14 +402,14 @@ def getitem(path, info_width=512, info_height=512):
     #         transformPoint(transformation, item[c]) for c in range(2)
     #     ] for item in items]
     #     continue
-    ##AAA
+    # AAA
 
     width = info_width
     height = info_height
 
     roomSegmentation = np.zeros((height, width), dtype=np.uint8)
     for line in walls:
-        #cv2.line(roomSegmentation, line[0], line[1], color=NUM_ROOMS + 1 + calcLineDirection(line), thickness=gap)
+        # cv2.line(roomSegmentation, line[0], line[1], color=NUM_ROOMS + 1 + calcLineDirection(line), thickness=gap)
         cv2.line(roomSegmentation,
                  line[0],
                  line[1],
@@ -423,13 +470,13 @@ def getitem(path, info_width=512, info_height=512):
                 roomIndex = rooms[(corners[0][1] + corners[1][1]) //
                                   2][(corners[0][0] + corners[1][0]) // 2]
                 if roomIndex == wallIndex or roomIndex == backgroundIndex:
-                    #if roomIndex == backgroundIndex:
-                    #print('label on background', corners, semantic, index, self.imagePaths[index][1])
-                    #pass
+                    # if roomIndex == backgroundIndex:
+                    # print('label on background', corners, semantic, index, self.imagePaths[index][1])
+                    # pass
                     continue
                 if roomIndex in roomLabelMap:
-                    #print('room has more than one labels', corners, label, roomLabelMap[roomIndex])
-                    #exit(1)
+                    # print('room has more than one labels', corners, label, roomLabelMap[roomIndex])
+                    # exit(1)
                     continue
                     pass
                 roomLabelMap[roomIndex] = label
@@ -438,7 +485,7 @@ def getitem(path, info_width=512, info_height=512):
             continue
         continue
 
-    #print(roomLabelMap)
+    # print(roomLabelMap)
     debug = -1
     if debug >= 0:
         cv2.imwrite('test/floorplan/rooms.png',
@@ -451,8 +498,8 @@ def getitem(path, info_width=512, info_height=512):
             continue
         if roomIndex not in roomLabelMap:
             roomSegmentation[rooms == roomIndex] = 10
-            #print('room has no label', roomIndex, rooms.max(), np.stack((rooms == roomIndex).nonzero(), axis=-1).mean(0)[::-1])
-            #exit(1)
+            # print('room has no label', roomIndex, rooms.max(), np.stack((rooms == roomIndex).nonzero(), axis=-1).mean(0)[::-1])
+            # exit(1)
             pass
         continue
 
@@ -463,7 +510,7 @@ def getitem(path, info_width=512, info_height=512):
         continue
 
     if False:
-        ###cv2.imwrite('test/image.png', image_ori)
+        # cv2.imwrite('test/image.png', image_ori)
         cv2.imwrite('test/icon_segmentation.png',
                     drawSegmentationImage(iconSegmentation))
         cv2.imwrite('test/room_segmentation.png',
@@ -477,7 +524,7 @@ def getitem(path, info_width=512, info_height=512):
         exit(1)
         pass
 
-    ###image = (image.astype(np.float32) / 255 - 0.5).transpose((2, 0, 1))
+    # image = (image.astype(np.float32) / 255 - 0.5).transpose((2, 0, 1))
     kernel = np.zeros((3, 3), dtype=np.uint8)
     kernel[1] = 1
     kernel[:, 1] = 1
