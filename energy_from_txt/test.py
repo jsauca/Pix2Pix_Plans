@@ -8,11 +8,10 @@ from txt_energy import *
 """ Test """
 
 PATH = '../dataset/vectors/'
-num_samples = len(paths_test)
 
 paths_test, coolings_test, heatings_test = [], [], []
 
-print('Test data loading... - Number of samples : {}'.format(num_samples))
+print('Test data loading...')
 
 for path_1 in os.listdir(PATH):
     if path_1 == '_DS_Store' or path_1 == '.DS_Store':
@@ -30,9 +29,11 @@ for path_1 in os.listdir(PATH):
             txt_path = os.path.join(PATH_3, txt_path)
             paths_test.append(txt_path)
 
+num_samples = len(paths_test)
+
 corners_test = list(map(lambda x: load_corners_test(
     x, paths_test), range(num_samples)))
-print('Test data loaded')
+print('Test data loaded - Number of samples : {}'.format(num_samples))
 corners_test = torch.stack(corners_test)
 
 h = np.zeros(num_samples)
