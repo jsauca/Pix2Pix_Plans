@@ -97,6 +97,8 @@ if __name__ == '__main__':
                                                          process_output(cooling, c_mean, c_std)))
 
             print('Train : ep = {} - it = {} - loss = {}'.format(epoch, idx, loss.item()))
+        # r2 score of epoch if wanted
+        # sklearn.metrics.r2_score(y_true, y_pred, sample_weight=None, multioutput='uniform_average')
 
         for idx, (x, y) in enumerate(eval_loader):
             y_pred = net(x)
