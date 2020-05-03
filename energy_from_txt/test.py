@@ -1,4 +1,5 @@
 import os
+import csv
 import numpy as np
 import torch
 from floorplan_bis import getitem
@@ -7,9 +8,11 @@ from txt_energy import *
 """ Test """
 
 PATH = '../dataset/vectors/'
-data_folder = ''
+num_samples = len(paths_test)
 
 paths_test, coolings_test, heatings_test = [], [], []
+
+print('Test data loading... - Number of samples : {}'.format(num_samples))
 
 for path_1 in os.listdir(PATH):
     if path_1 == '_DS_Store' or path_1 == '.DS_Store':
@@ -27,12 +30,9 @@ for path_1 in os.listdir(PATH):
             txt_path = os.path.join(PATH_3, txt_path)
             paths_test.append(txt_path)
 
-
-# num_samples = len(paths_test)
-num_samples = 100
 corners_test = list(map(lambda x: load_corners_test(
     x, paths_test), range(num_samples)))
-print('Test data loaded - Number of samples : {}'.format(num_samples))
+print('Test data loaded')
 corners_test = torch.stack(corners_test)
 
 h = np.zeros(num_samples)
@@ -49,19 +49,17 @@ print('Data loaded')
 model = torch.load('model')
 model.eval()
 print('Model loaded')
-
 print('******** Start predictions *********')
 heatings, coolings = [], []
-for idx, (x, _) in enumerate(test_loader):
-    y_pred = model(x).detach().numpy()
-    heating = y_pred[:, 0][0]
-    cooling = y_pred[:, 1][0]
-    real_heating = process_output(heating, h_mean, h_std)
-    real_cooling = process_output(cooling, c_mean, c_std)
-    print('File_{}_heating_{}_cooling_{}'.format(
-        idx, real_heating, real_cooling))
-    heatings.append(real_heating)
-    coolings.append(real_cooling)
-
-print(heatings)
-print(coolings)
+with open('energy.csv', 'w') as f:
+    writer = csv.writer(f, delimiter=',')
+    for idx, (x, _) in enumerate(test_loader):
+        y_pred = model(x).detach().numpy()
+        heating = y_pred[:, 0][0]
+        cooling = y_pred[:, 1][0]
+        real_heating = process_output(heating, h_mean, h_std)
+        real_cooling = process_output(cooling, c_mean, c_std)
+        print('File_{}_heating_{}_cooling_{}'.format(
+            idx, real_heating, real_cooling))
+        writer.writerow([paths_test[idx][19:-9], int(
+            real_cooling), int(real_heating)])
