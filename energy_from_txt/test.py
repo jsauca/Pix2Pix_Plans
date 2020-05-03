@@ -4,10 +4,7 @@ import torch
 from floorplan_bis import getitem
 from torch import nn, optim
 from txt_energy import *
-
 """ Test """
-model = torch.load('model')
-model.eval()
 
 PATH = '../dataset/vectors/'
 data_folder = ''
@@ -30,18 +27,41 @@ for path_1 in os.listdir(PATH):
             txt_path = os.path.join(PATH_3, txt_path)
             paths_test.append(txt_path)
 
-num_samples = len(paths_test)
-print(num_samples)
-corners_test = list(map(lambda x: load_corners(
+
+# num_samples = len(paths_test)
+num_samples = 100
+corners_test = list(map(lambda x: load_corners_test(
     x, paths_test), range(num_samples)))
-print('Test data loaded')
-corners_test = torch.stack(corners)
+print('Test data loaded - Number of samples : {}'.format(num_samples))
+corners_test = torch.stack(corners_test)
+
+h = np.zeros(num_samples)
+c = np.zeros(num_samples)
+
+targets = np.stack([h, c], axis=1)
+targets = torch.from_numpy(targets)
 
 dataset_test = torch.utils.data.TensorDataset(
-    corners_test.float())
-test_loader = torch.utils.data.DataLoader(dataset_test)
+    corners_test.float(), targets.float())
+test_loader = torch.utils.data.DataLoader(dataset_test, batch_size=1)
+print('Data loaded')
 
-for idx, x in enumerate(test_loader):
-    y_pred = model(x)
-    print(paths[idx])
-    print(process.process_output(y_pred))
+model = torch.load('model')
+model.eval()
+print('Model loaded')
+
+print('******** Start predictions *********')
+heatings, coolings = [], []
+for idx, (x, _) in enumerate(test_loader):
+    y_pred = model(x).detach().numpy()
+    heating = y_pred[:, 0][0]
+    cooling = y_pred[:, 1][0]
+    real_heating = process_output(heating, h_mean, h_std)
+    real_cooling = process_output(cooling, c_mean, c_std)
+    print('File_{}_heating_{}_cooling_{}'.format(
+        idx, real_heating, real_cooling))
+    heatings.append(real_heating)
+    coolings.append(real_cooling)
+
+print(heatings)
+print(coolings)
