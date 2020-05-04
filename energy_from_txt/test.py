@@ -29,12 +29,12 @@ for path_1 in os.listdir(PATH):
             txt_path = os.path.join(PATH_3, txt_path)
             paths_test.append(txt_path)
 
-num_samples = len(paths_test) * 0.9
+num_samples = int(len(paths_test) * 0.1)
 
 corners_test = list(map(lambda x: load_corners_test(
     x, paths_test), range(num_samples)))
 print('Test data loaded - Number of samples : {}'.format(num_samples))
-corners_test = torch.stack(corners_test)
+corners_test = torch.stack(corners_test)  # violent
 
 h = np.zeros(num_samples)
 c = np.zeros(num_samples)
@@ -64,3 +64,4 @@ with open('energy.csv', 'w') as f:
             idx, real_heating, real_cooling))
         writer.writerow([paths_test[idx][19:-9], int(
             real_cooling), int(real_heating)])
+f.close()

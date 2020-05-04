@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     dataset_eval = torch.utils.data.TensorDataset(
         corners[1200:].float(), targets[1200:].float())
-    eval_loader = torch.utils.data.DataLoader(dataset_train, batch_size=64)
+    eval_loader = torch.utils.data.DataLoader(dataset_eval, batch_size=64)
 
     layers = [nn.Flatten(),
               nn.Linear(size * size * channels, 256),
