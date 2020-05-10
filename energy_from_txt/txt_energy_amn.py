@@ -9,7 +9,7 @@ size = 128
 num_epochs = 100
 channels = 17
 bn = True
-data_folder = '../dataset/'
+data_folder = '../dataset/vectors/'
 use_log = False
 gamma = 0.95
 weight_decay = 0
@@ -99,12 +99,13 @@ def load_corners(idx):
 
 
 paths, coolings, heatings = [], [], []
-with open('paths.csv', 'r') as reader:
-    for line in list(reader)[1:]:
-        sample = line.split(',')[1:]
-        paths.append('/'.join(sample[0].split('/')[2:]))
-        coolings.append(int(sample[1]))
-        heatings.append(int(sample[2][:-2]))
+with open('all.csv', 'r') as reader:
+    for line in list(reader)[1:1471]:
+        sample = line.split(';')[1:]
+        paths.append('/'.join(sample[0].split('/')))
+        coolings.append(int(sample[2]))
+        heatings.append(int(sample[3][:-2]))
+
 
 heatings = np.array(heatings)
 coolings = np.array(coolings)
