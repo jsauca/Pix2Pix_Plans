@@ -180,10 +180,9 @@ class Trainer:
                 x_real = sample[0][0].to(device)
                 shape = sample[1][0].to(device)
                 c = sample[2][0].to(device)
-                h = sample[3][0].to(device)
+                h = sample[2][1].to(device)
                 condition = shape
-                self._cdt = condition
-                print('types', type(shape), type(c), type(h))
+                self._cdt = condition, c, h
             else:
                 x_real = sample[0]
                 condition = None

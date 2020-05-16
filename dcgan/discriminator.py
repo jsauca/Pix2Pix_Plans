@@ -56,7 +56,7 @@ class Disc_v0(Discriminator):
     def _forward(self, image):
 
         if type(image) == tuple:
-            im, c, h = images
+            im, c, h = image
             c = self._embed_c(c)
             h = self._embed_h(h)
             image = torch.cat([im, c, h], 1)

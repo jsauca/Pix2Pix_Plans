@@ -32,25 +32,22 @@ def get_dataset(args):
                                                   transform=preprocessing)
         shapes_sampler = torch.utils.data.RandomSampler(
             shapes, replacement=True, num_samples=args.num_samples)
-        data_c = torch.load('dataset/images/data_c.pt')
-        data_c = torch.utils.data.DataLoader(data_c,
+        data_c = torch.load('dataset/images/data_c.pt').unsqueeze(1).float()
+        data_h = torch.load('dataset/images/data_h.pt').unsqueeze(1).float()
+        energy = torch.utils.data.TensorDataset(data_c, data_h)
+        energy = torch.utils.data.DataLoader(energy,
                                              batch_size=args.batch_size,
                                              shuffle=False,
                                              drop_last=True,
                                              num_workers=0)
-        data_h = torch.load('dataset/images/data_h.pt')
-        data_h = torch.utils.data.DataLoader(data_h,
-                                             batch_size=args.batch_size,
-                                             shuffle=False,
-                                             drop_last=True,
-                                             num_workers=0)
+        print('data_h', next(iter(data_h))[0].shape)
         shapes = torch.utils.data.DataLoader(shapes,
                                              batch_size=args.batch_size,
                                              shuffle=False,
                                              drop_last=True,
                                              num_workers=0)
 
-        return (lines, shapes, data_c, data_h), shapes_sampler
+        return (lines, shapes, energy), shapes_sampler
     else:
         preprocessing = transforms.Compose([
             transforms.Resize(64),
