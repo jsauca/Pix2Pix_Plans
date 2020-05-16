@@ -252,9 +252,9 @@ class Trainer:
             plt.show()
 
         if type(samples) == tuple:
-            # plot(samples[0][0])
+            plot(samples[0][0])
             # plot(samples[0][1])
-            plot(samples[0][2])
+            # plot(samples[0][2])
             plot(samples[1])
         else:
             plot(samples)
