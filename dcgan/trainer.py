@@ -176,6 +176,8 @@ class Trainer:
         print('--> Training epoch = {} ...'.format(self._epoch))
         for batch_idx, sample in tqdm(enumerate(zip(*self._data)),
                                       total=self._len_data):
+            # if batch_idx == 3:
+            #     break
             if self._args.conditional:
                 x_real = sample[0][0].to(device)
                 shape = sample[1][0].to(device)
@@ -211,6 +213,8 @@ class Trainer:
         with torch.no_grad():
             if self._args.conditional:
                 condition = self._cdt
+                print('test cooling', self._cdt[1])
+                print('test heating', self._cdt[2])
                 samples = self._g_net(condition) * 0.5 + 0.5
                 return condition, samples
             else:
@@ -227,7 +231,7 @@ class Trainer:
                           normalize=normalize,
                           padding=padding)
         if condition is not None:
-            vutils.save_image(condition,
+            vutils.save_image(condition[0],
                               self._epoch_dir + 'condition_grid.png',
                               normalize=normalize,
                               padding=padding)
