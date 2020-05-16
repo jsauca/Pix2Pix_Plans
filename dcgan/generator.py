@@ -34,14 +34,18 @@ class Generator(nn.Module):
         raise NotImplementedError
 
     def forward(self, input_or_batch_size, training=False):
+
         if self._conditional:
-            input = input_or_batch_size
+            input = input_or_batch_size[0]
+            c = input_or_batch_size[1]
+            h = input_or_batch_size[2]
             batch_size = input.size(0)
             noise = self.get_noise(batch_size, training)
             prefix = self._cgan(input)
             if not training:
                 prefix = prefix.detach()
-            gen_input = torch.cat([noise, prefix], 1)
+
+            gen_input = torch.cat([noise, prefix, c, h], 1)
         else:
             batch_size = input_or_batch_size
             gen_input = self.get_noise(batch_size, training)
@@ -61,7 +65,7 @@ class Gen_v0(Generator):
         self._noise_size = noise_size
         self._channels = channels
         if conditional:
-            in_channels = noise_size * 2
+            in_channels = noise_size * 2 + 2
         else:
             in_channels = noise_size
         self._deconv_layers = nn.Sequential(*[

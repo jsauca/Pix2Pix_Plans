@@ -20,13 +20,22 @@ class Discriminator(nn.Module):
             return self._forward(inputs), self._forward(inputs_bis)
 
 
+class View(nn.Module):
+    def __init__(self, shape):
+        super(View, self).__init__()
+        self.shape = shape
+
+    def forward(self, x):
+        return x.view(*self.shape)
+
+
 class Disc_v0(Discriminator):
 
     def __init__(self, channels, scale, conditional=False):
         super(Disc_v0, self).__init__(version=0, conditional=conditional)
         self._scale = scale
         if conditional:
-            channels += 1
+            channels += 3
         self._channels = channels
         self._conv_layers = nn.Sequential(*[
             Conv_2D(channels, scale, 4, 2, 1, 'lrelu', batch_norm=False),
@@ -35,8 +44,22 @@ class Disc_v0(Discriminator):
             Conv_2D(4 * scale, 8 * scale, 4, 2, 1, 'lrelu'),
             Conv_2D(8 * scale, 1, 4, 1, 0, 'id', batch_norm=False)
         ])
+        embed = [nn.Linear(1, 256),
+                 View((-1, 1, 16, 16)),
+                 torch.nn.Upsample(scale_factor=4, mode='bilinear')]
+        self._embed_c = nn.Sequential(*embed)
+        embed = [nn.Linear(1, 256),
+                 View((-1, 1, 16, 16)),
+                 torch.nn.Upsample(scale_factor=4, mode='bilinear')]
+        self._embed_h = nn.Sequential(*embed)
 
     def _forward(self, image):
+
+        if type(image) == tuple:
+            im, c, h = images
+            c = self._embed_c(c)
+            h = self._embed_h(h)
+            image = torch.cat([im, c, h], 1)
         x = image
         x = self._conv_layers(x)
         x = x[:, 0, 0, 0]

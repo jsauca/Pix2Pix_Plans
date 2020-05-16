@@ -139,13 +139,13 @@ class Trainer:
         self._d_loss = d_loss
         self._g_loss = g_loss
 
-    def _g_step(self, condition=None):
+    def _g_step(self, condition=None, c=None, h=None):
         self._g_opt.zero_grad()
         # self._d_net.eval()
         # self._g_net.train()
         if self._args.conditional:
-            x_fake = self._g_net(condition, True)
-            d_fake = self._d_net(torch.cat([x_fake, condition], 1))
+            x_fake = self._g_net((condition, c, h), True)
+            d_fake = self._d_net((torch.cat([x_fake, condition], 1), c, h))
         else:
             x_fake = self._g_net(self._args.batch_size, True)
             d_fake = self._d_net(x_fake)
@@ -153,16 +153,14 @@ class Trainer:
         loss.backward()
         self._g_opt.step()
 
-    def _d_step(self, x_real, condition=None):
+    def _d_step(self, x_real, condition=None, c=None, h=None):
         self._d_opt.zero_grad()
-        # self._d_net.train()
-        # self._g_net.eval()
         if self._args.conditional:
-            x_fake = self._g_net(condition).detach()
+            x_fake = self._g_net((condition, c, h), True).detach()
             cgan_x_fake = torch.cat([x_fake, condition], 1)
             cgan_x_real = torch.cat([x_real, condition], 1)
-            d_fake = self._d_net(cgan_x_fake)
-            d_real = self._d_net(cgan_x_real)
+            d_fake = self._d_net((cgan_x_fake, c, h))
+            d_real = self._d_net((cgan_x_real, c, h))
             loss = self._d_loss(d_real, d_fake, cgan_x_real, cgan_x_fake)
         else:
             x_fake = self._g_net(self._args.batch_size).detach()
@@ -179,7 +177,6 @@ class Trainer:
         for batch_idx, sample in tqdm(enumerate(zip(*self._data)),
                                       total=self._len_data):
             if self._args.conditional:
-
                 x_real = sample[0][0].to(device)
                 shape = sample[1][0].to(device)
                 c = sample[2][0].to(device)
@@ -190,11 +187,9 @@ class Trainer:
                 x_real = sample[0]
                 condition = None
 
-            self._d_step(x_real, condition)
+            self._d_step(x_real, condition, c, h)
             if np.random.uniform() < self._args.gen_prob:
-                self._g_step(condition)
-            # if batch_idx > 3:
-            #     break
+                self._g_step(condition, c, h)
         self._lr_scheduler.step()
         self._epoch_dir = self._dir + '/epoch_{}'.format(self._epoch)
         print('--> Training epoch = {} done !'.format(self._epoch))
