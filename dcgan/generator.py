@@ -36,9 +36,7 @@ class Generator(nn.Module):
     def forward(self, input_or_batch_size, training=False):
 
         if self._conditional:
-            print("bla")
             input = input_or_batch_size[0]
-            print(type(input))
             c = input_or_batch_size[1]
             h = input_or_batch_size[2]
             batch_size = input.size(0)

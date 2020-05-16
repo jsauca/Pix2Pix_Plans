@@ -181,7 +181,7 @@ class Trainer:
                 shape = sample[1][0].to(device)
                 c = sample[2][0].to(device)
                 h = sample[3][0].to(device)
-                condition = (shape, c, h)
+                condition = shape
                 self._cdt = condition
             else:
                 x_real = sample[0]
