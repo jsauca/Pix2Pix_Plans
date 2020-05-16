@@ -39,6 +39,7 @@ class Generator(nn.Module):
             input = input_or_batch_size[0]
             c = input_or_batch_size[1]
             h = input_or_batch_size[2]
+            print(type(input))
             batch_size = input.size(0)
             noise = self.get_noise(batch_size, training)
             prefix = self._cgan(input)
