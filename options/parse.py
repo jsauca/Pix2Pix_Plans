@@ -7,7 +7,7 @@ def options_data(parser):
     parser.add_argument('--data_folder',
                         help='folder for training data',
                         type=str,
-                        default='dataset/images')
+                        default='dataset/images/data')
     parser.add_argument('--conditional',
                         help='conditional',
                         type=bool,

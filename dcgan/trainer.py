@@ -181,7 +181,10 @@ class Trainer:
             if self._args.conditional:
 
                 x_real = sample[0][0].to(device)
-                condition = sample[1][0].to(device)
+                shape = sample[1][0].to(device)
+                c = sample[2][0].to(device)
+                h = sample[3][0].to(device)
+                condition = (shape, c, h)
                 self._cdt = condition
             else:
                 x_real = sample[0]
