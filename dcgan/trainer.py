@@ -183,11 +183,12 @@ class Trainer:
                 h = sample[3][0].to(device)
                 condition = shape
                 self._cdt = condition
+                print('types', type(shape), type(c), type(h))
             else:
                 x_real = sample[0]
                 condition = None
 
-            self._d_step(x_real, condition, c, h)
+            self._d_step(x_real, shape, c, h)
             if np.random.uniform() < self._args.gen_prob:
                 self._g_step(condition, c, h)
         self._lr_scheduler.step()
