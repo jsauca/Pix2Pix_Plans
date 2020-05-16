@@ -12,6 +12,8 @@ __pycache__/
 data/images64/*
 # C extensions
 *.so
+dataset/images/
+
 
 # Distribution / packaging
 .Python
