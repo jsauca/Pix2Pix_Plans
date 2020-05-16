@@ -176,8 +176,8 @@ class Trainer:
         print('--> Training epoch = {} ...'.format(self._epoch))
         for batch_idx, sample in tqdm(enumerate(zip(*self._data)),
                                       total=self._len_data):
-            # if batch_idx == 3:
-            #     break
+            if batch_idx == 3:
+                break
             if self._args.conditional:
                 x_real = sample[0][0].to(device)
                 shape = sample[1][0].to(device)
@@ -252,23 +252,9 @@ class Trainer:
             plt.show()
 
         if type(samples) == tuple:
-            plot(samples[0])
+            plot(samples[0][0])
+            plot(samples[0][1])
+            plot(samples[0][2])
             plot(samples[1])
         else:
             plot(samples)
-        # self._samples.append(i)
-        # plt.clf()
-
-    # def show_animation(self):
-    #     from IPython.display import HTML
-    #     fig = plt.figure(figsize=(8, 8))
-    #     plt.axis("off")
-    #     ims = [[plt.imshow(i, animated=True)] for i in self._samples]
-    #     ani = animation.ArtistAnimation(fig,
-    #                                     ims,
-    #                                     interval=1000,
-    #                                     repeat_delay=1000,
-    #                                     blit=True)
-    #     print('blaaaaaaaaaaaaaaaaaa')
-    #     HTML(ani.to_html5_video())
-    #     # plt.clf()
