@@ -176,8 +176,8 @@ class Trainer:
         print('--> Training epoch = {} ...'.format(self._epoch))
         for batch_idx, sample in tqdm(enumerate(zip(*self._data)),
                                       total=self._len_data):
-            if batch_idx == 3:
-                break
+            # if batch_idx == 3:
+            #     break
             if self._args.conditional:
                 x_real = sample[0][0].to(device)
                 shape = sample[1][0].to(device)
@@ -252,8 +252,8 @@ class Trainer:
             plt.show()
 
         if type(samples) == tuple:
-            plot(samples[0][0])
-            plot(samples[0][1])
+            # plot(samples[0][0])
+            # plot(samples[0][1])
             plot(samples[0][2])
             plot(samples[1])
         else:
