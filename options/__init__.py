@@ -38,7 +38,7 @@ def get_train_args():
 
 def get_test_args():
     parser = argparse.ArgumentParser()
-    options_test(parser)
+    options_test_nrj(parser)
     args = parser.parse_args()
     print('* Loading options ...')
     for arg, value in args.__dict__.items():

@@ -1,0 +1,4 @@
+inputs/shapes/shapes/shape_2.png,1.,1.
+inputs/shapes/shapes/shape_2.png,200.,100.
+inputs/shapes/shapes/shape_572.png,12.,8.
+inputs/shapes/shapes/shape_572.png,200.,100.

@@ -143,3 +143,5 @@ sample_11.png
 .DS_Store
 energy_from_txt/model
 complete_floorplans/data_final_bis/*
+dataset/images_bis/*
+

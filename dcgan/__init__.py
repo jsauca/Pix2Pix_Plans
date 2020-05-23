@@ -25,6 +25,7 @@ def get_generator(args):
     g_net = builder(args.noise_size, args.channels, args.gen_scale,
                     args.conditional).to(device)
     if args.gen_checkpoint is not None:
+        print(args.gen_checkpoint)
         g_net.load_state_dict(
             torch.load(args.gen_checkpoint, map_location=device))
         print('----> Loading checkpoint = {}'.format(args.gen_checkpoint))
