@@ -99,7 +99,7 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     gaps = [1, 3, 5]  # [1]
     distances = [3, 3, 5]  # [1]
     lengths = [1, 3, 5]  # [1]
-    heatmaps_wall = [0.02, 0.02, 0.02]  # [0.01]
+    heatmaps_wall = [0.05, 0.05, 0.05]  # [0.01]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
