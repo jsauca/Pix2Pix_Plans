@@ -27,7 +27,7 @@ def get_dataset(args):
 
         preprocessing = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
-            transforms.Resize(64),
+            transforms.Resize(128),
             transforms.ToTensor(),
         ])
         shapes = torchvision.datasets.ImageFolder(data_dir + '/shapes/',
@@ -75,7 +75,7 @@ def get_dataset_test(args):
     data_dir = args.shape_folder
     preprocessing = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
-        transforms.Resize(64),
+        transforms.Resize(128),
         transforms.ToTensor(),
     ])
     shapes = torchvision.datasets.ImageFolder(data_dir + '/shapes',

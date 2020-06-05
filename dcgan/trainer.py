@@ -144,7 +144,6 @@ class Trainer:
         # self._d_net.eval()
         # self._g_net.train()
 
-        print('cdt', condition.shape)
         if self._args.conditional:
             x_fake = self._g_net((condition, c, h), True)
             d_fake = self._d_net((torch.cat([x_fake, condition], 1), c, h))
@@ -185,7 +184,7 @@ class Trainer:
                 c = sample[2][0].to(device)
                 h = sample[2][1].to(device)
                 condition = shape
-                condition = nn.Upsample(scale_factor=2)(condition)
+                #condition = nn.Upsample(scale_factor=2)(condition)
                 self._cdt = condition, c, h
             else:
                 x_real = sample[0]
