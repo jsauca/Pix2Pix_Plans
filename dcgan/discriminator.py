@@ -46,12 +46,13 @@ class Disc_v0(Discriminator):
         ])
         embed = [nn.Linear(1, 256),
                  View((-1, 1, 16, 16)),
-                 torch.nn.Upsample(scale_factor=4, mode='bilinear')]
+                 torch.nn.Upsample(scale_factor=8, mode='bilinear')]
         self._embed_c = nn.Sequential(*embed)
         embed = [nn.Linear(1, 256),
                  View((-1, 1, 16, 16)),
-                 torch.nn.Upsample(scale_factor=4, mode='bilinear')]
+                 torch.nn.Upsample(scale_factor=8, mode='bilinear')]
         self._embed_h = nn.Sequential(*embed)
+        self._fc = nn.Linear(25, 1)
 
     def _forward(self, image):
 
@@ -62,7 +63,9 @@ class Disc_v0(Discriminator):
             image = torch.cat([im, c, h], 1)
         x = image
         x = self._conv_layers(x)
-        x = x[:, 0, 0, 0]
+        x = nn.Flatten()(x)
+        x = self._fc(x)
+        x = x[:, 0]
         return x
 
 

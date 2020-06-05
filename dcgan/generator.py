@@ -18,7 +18,7 @@ class Generator(nn.Module):
     def _build_cgan(self):
         self._cgan = nn.Sequential(nn.Conv2d(1, 1, 3, stride=2, padding=1),
                                    nn.Flatten(),
-                                   nn.Linear(32 * 32, self._noise_size))
+                                   nn.Linear(4096, self._noise_size))
 
     def get_noise(self, batch_size, training):
         size = [batch_size, self._noise_size]
@@ -78,8 +78,8 @@ class Gen_v0(Generator):
 
     def _forward(self, z):
         z = z.view(z.size(0), -1, 1, 1)
-        print(100 * '$$$$', z.size)
-        x = self._deconv_layers(z)
+        z_ = nn.Upsample(scale_factor=5)(z)
+        x = self._deconv_layers(z_)
         return x
 
 
