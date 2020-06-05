@@ -78,6 +78,7 @@ class Gen_v0(Generator):
 
     def _forward(self, z):
         z = z.view(z.size(0), -1, 1, 1)
+        print(100 * '$$$$', z.size)
         x = self._deconv_layers(z)
         return x
 
