@@ -7,6 +7,7 @@ from os.path import isfile, join
 from datetime import datetime
 import cv2 as cv2
 import string
+import itertools
 
 alphabet = string.ascii_lowercase.replace('t', '').replace('n', '')
 threshold_text = 2   # can adapt, test with Revit
@@ -96,14 +97,14 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
-    gaps = [1, 3, 5]  # [1]
-    distances = [3, 3, 5]  # [1]
-    lengths = [1, 3, 5]  # [1]
-    heatmaps_wall = [0.05, 0.05, 0.05]  # [0.01]
+    gaps = [1, 3, 5]
+    distances = [3, 5, 7]
+    lengths = [1, 3, 5]
+    heatmaps_wall = [0.005, 0.01, 0.05]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
-        for gap, distanceThreshold, lengthThreshold, heatmapValueThresholdWall in zip(gaps, distances, lengths, heatmaps_wall):
+        for gap, distanceThreshold, lengthThreshold, heatmapValueThresholdWall in itertools.product(gaps, distances, lengths, heatmaps_wall):
             output_prefix = folder_outputs + path_sample[:-4] + \
                 '_gap_{}_dist_{}_length_{}_wall_{}'.format(
                 gap, distanceThreshold, lengthThreshold,
@@ -129,18 +130,21 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
             global gaping
             gaping = 0
             i = 0
-            while i < len(text) - gaping:
-                j = 0
-                while j < len(text) - gaping:
-                    if j != i:
-                        distances = dist(getter_line(text[i]), getter_line(
-                            text[j]))
-                        if distances[0] < threshold_text and distances[1] < threshold_text and distances[2] < threshold_text and distances[3] < threshold_text:
-                            txt_main_int.pop(j)
-                            gaping += 1
-                            j -= 1
-                    j += 1
-                i += 1
+            try:
+                while i < len(text) - gaping:
+                    j = 0
+                    while j < len(text) - gaping:
+                        if j != i:
+                            distances = dist(getter_line(text[i]), getter_line(
+                                text[j]))
+                            if distances[0] < threshold_text and distances[1] < threshold_text and distances[2] < threshold_text and distances[3] < threshold_text:
+                                txt_main_int.pop(j)
+                                gaping += 1
+                                j -= 1
+                        j += 1
+                    i += 1
+            except:
+                pass
 
         # sum of masks
         images = np.zeros((256, 256, 3))
@@ -168,8 +172,8 @@ if __name__ == '__main__':
     RTV.load_state_dict(
         torch.load('rtv/checkpoints/rtv.pth', map_location=device))
 
-    folder_inputs = 'rtv_inputs/'
-    folder_outputs = 'rtv_outputs/{}/'.format(
+    folder_inputs = 'rtv/rtv_inputs/'
+    folder_outputs = 'rtv/rtv_outputs/{}/'.format(
         datetime.now().strftime('%m-%d_%H-%M-%S'))
     os.makedirs(folder_outputs)
     paths = [f for f in listdir(folder_inputs)

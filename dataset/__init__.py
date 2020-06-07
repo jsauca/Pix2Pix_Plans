@@ -98,6 +98,8 @@ def get_dataset_test_nrj(args):
         np.array([float(input[1]) for input in gen_input])).unsqueeze(1)
     data_h = torch.from_numpy(
         np.array([float(input[2]) for input in gen_input])).unsqueeze(1)
+    print('example', type(shapes[0][0]), shapes[0][0].shape)
+    print('concat', type(np.array(shapes)), np.array(shapes).shape)
     shapes = torch.from_numpy(np.array(shapes))
     print(shapes.shape)
     shapes = torch.utils.data.TensorDataset(shapes)

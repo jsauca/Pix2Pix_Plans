@@ -29,7 +29,7 @@ for path_1 in os.listdir(PATH):
             txt_path = os.path.join(PATH_3, txt_path)
             paths_test.append(txt_path)
 
-num_samples = en(paths_test)
+num_samples = len(paths_test)
 
 corners_test = list(map(lambda x: load_corners_test(
     x, paths_test), range(num_samples)))
