@@ -97,10 +97,14 @@ def apply_rtv(img, image, output_prefix, RTV, gap=-1,
 
 
 def full_rtv(folder_inputs, folder_outputs, paths, RTV):
-    gaps = [1, 3, 5]
+    # gaps = [3, 5, 7, 9]
+    # distances = [3, 5, 7, 9]
+    # lengths = [1, 3, 5, 7, 9]
+    # heatmaps_wall = [0.001, 0.01]
+    gaps = [5, 7]
     distances = [3, 5, 7]
-    lengths = [1, 3, 5]
-    heatmaps_wall = [0.005, 0.01, 0.05]
+    lengths = [1, 3]
+    heatmaps_wall = [0.01]
 
     for path_sample in paths:
         img, image = load_img(folder_inputs + path_sample)
@@ -125,6 +129,8 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         txt_main_int = [
             line for line in all_lines if not contains_letter(line)]
         txt_main_str = [line for line in all_lines if contains_letter(line)]
+
+        print(txt_main_str)
 
         def filtering(text):
             global gaping

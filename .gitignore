@@ -145,3 +145,4 @@ energy_from_txt/model
 complete_floorplans/data_final_bis/*
 dataset/images_bis/*
 
+rtv/rtv_outputs/*
