@@ -167,7 +167,7 @@ def options_test_nrj(parser):
     parser.add_argument('--gen_input',
                         help='path for test info',
                         type=str,
-                        default='gen_eval.txt')
+                        default='inputs/gen_eval.txt')
     parser.add_argument('--conditional',
                         help='conditional',
                         type=bool,
