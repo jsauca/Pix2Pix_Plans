@@ -1,5 +1,5 @@
 import dataset
-import dcgan
+import pix2pix
 import options
 import torch
 #torch.backends.cudnn.enabled = False
@@ -10,13 +10,13 @@ args = options.get_train_args()
 data = dataset.get_dataset(args)
 
 # Discriminator
-disc = dcgan.get_discriminator(args)
+disc = pix2pix.get_discriminator(args)
 
 # Generator
-gen = dcgan.get_generator(args)
+gen = pix2pix.get_generator(args)
 
 # Trainer
-trainer = dcgan.get_trainer(data, gen, disc, args)
+trainer = pix2pix.get_trainer(data, gen, disc, args)
 for epoch in range(500):
     trainer.train()
     trainer.save_checkpoints()

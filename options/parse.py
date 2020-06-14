@@ -117,7 +117,7 @@ def options_test(parser):
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
-                        default='dcgan/checkpoints/gen_checkpoint_pix.pt')
+                        default='pix2pix/checkpoints/gen_checkpoint_pix.pt')
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,
@@ -159,7 +159,7 @@ def options_test_nrj(parser):
     parser.add_argument('--gen_checkpoint',
                         help='checkpoint for generator',
                         type=str,
-                        default='dcgan/checkpoints/gen_checkpoint_test-nrj.pt')
+                        default='pix2pix/checkpoints/gen_checkpoint_test-nrj.pt')
     parser.add_argument('--noise_size',
                         help='size of latent space',
                         type=int,

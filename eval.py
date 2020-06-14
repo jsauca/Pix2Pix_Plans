@@ -10,7 +10,7 @@ import string
 import itertools
 
 alphabet = string.ascii_lowercase.replace('t', '').replace('n', '')
-threshold_text = 2   # can adapt, test with Revit
+threshold_text = 0.5   # can adapt
 
 
 def contains_letter(string):
@@ -29,7 +29,7 @@ def getter_line(line):
     x, j = [], 0
     counter_points = 0
     for i in range(len(line)):
-        if line[i] == " ":
+        if line[i] == "\t":
             if counter_points == 4:
                 break
             x.append(float(line[j:i + 1]))
@@ -102,8 +102,8 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
     # lengths = [1, 3, 5, 7, 9]
     # heatmaps_wall = [0.001, 0.01]
     gaps = [5, 7]
-    distances = [3, 5, 7]
-    lengths = [1, 3]
+    distances = [3]
+    lengths = [1]
     heatmaps_wall = [0.01]
 
     for path_sample in paths:
@@ -122,35 +122,14 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         files = os.listdir(folder_outputs)
         all_txt = [folder_outputs + file for file in files if path_sample[:-4]
                    in file and file.endswith("floorplan.txt")]
-        all_lines = [line.replace("\t8", " ").replace("\t6", " ").replace("\t3", " ").replace("\t", " ") for txt in all_txt
+        all_lines = [line.replace("\t8", " ").replace("\t6", " ").replace("\t3", " ") for txt in all_txt
                      for line in open(txt, "r") if len(line) > 10]
         all_lines = [line for line in all_lines]
 
-        txt_main_int = [
-            line for line in all_lines if not contains_letter(line)]
-        txt_main_str = [line for line in all_lines if contains_letter(line)]
-
-        print(txt_main_str)
-
-        def filtering(text):
-            global gaping
-            gaping = 0
-            i = 0
-            try:
-                while i < len(text) - gaping:
-                    j = 0
-                    while j < len(text) - gaping:
-                        if j != i:
-                            distances = dist(getter_line(text[i]), getter_line(
-                                text[j]))
-                            if distances[0] < threshold_text and distances[1] < threshold_text and distances[2] < threshold_text and distances[3] < threshold_text:
-                                txt_main_int.pop(j)
-                                gaping += 1
-                                j -= 1
-                        j += 1
-                    i += 1
-            except:
-                pass
+        txt_main_int = list(set([
+            line for line in all_lines if not contains_letter(line)]))
+        txt_main_str = list(
+            set([line for line in all_lines if contains_letter(line)]))
 
         # sum of masks
         images = np.zeros((256, 256, 3))
@@ -160,11 +139,14 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
         cv2.imwrite(folder_outputs +
                     path_sample[:-4] + '_sum' + '.png', images)
 
-        # sum of txts
-        filtering(txt_main_int)
-        filtering(txt_main_str)
         for i, line in enumerate(txt_main_int):
-            txt_main_int[i] = line[:-5] + "\t wall\t" + line[-5:]
+            txt_main_int[i] = line[:-5] + \
+                "\twall\t" + "1\t" + "1\t" + "\n"
+
+        for i, line in enumerate(txt_main_str):
+            txt_main_str[i] = line.replace("\n", "\t\n")
+        print(txt_main_int)
+        print(txt_main_str)
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
             writer_main.writelines(txt_main_int)
             writer_main.writelines(txt_main_str)

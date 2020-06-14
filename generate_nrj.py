@@ -6,7 +6,7 @@ import torch
 import torchvision.utils as vutils
 from skimage import io, transform
 
-import dcgan
+import pix2pix
 from dataset import *
 from rtv.network import RasterToVector
 from rtv.ip import *
@@ -16,7 +16,7 @@ from eval import full_rtv
 device = torch.device("cpu")
 
 args = options.get_test_args()
-gen = dcgan.get_generator(args).to(device)
+gen = pix2pix.get_generator(args).to(device)
 
 dir = os.path.join(args.outputs,
                    datetime.now().strftime('%m-%d_%H-%M-%S') + '/')
