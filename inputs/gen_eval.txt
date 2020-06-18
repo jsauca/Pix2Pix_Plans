@@ -1,1 +1,3 @@
 inputs/shapes/shapes/450.png,100.,80.
+inputs/shapes/shapes/34.png,10.,8.
+inputs/shapes/shapes/836.png,10.,8.

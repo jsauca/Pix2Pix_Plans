@@ -145,8 +145,7 @@ def full_rtv(folder_inputs, folder_outputs, paths, RTV):
 
         for i, line in enumerate(txt_main_str):
             txt_main_str[i] = line.replace("\n", "\t\n")
-        print(txt_main_int)
-        print(txt_main_str)
+
         with open(folder_outputs + path_sample[:-4] + "_sum.txt", "w") as writer_main:
             writer_main.writelines(txt_main_int)
             writer_main.writelines(txt_main_str)
