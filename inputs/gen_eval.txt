@@ -1,3 +1,8 @@
-inputs/shapes/shapes/450.png,100.,80.
-inputs/shapes/shapes/34.png,10.,8.
-inputs/shapes/shapes/836.png,10.,8.
+inputs/shapes/shapes/0.png,10.,8.
+inputs/shapes/shapes/1.png,10.,8.
+inputs/shapes/shapes/2.png,10.,8.
+inputs/shapes/shapes/4.png,10.,8.
+inputs/shapes/shapes/5.png,10.,8.
+inputs/shapes/shapes/6.png,10.,8.
+inputs/shapes/shapes/7.png,10.,8.
+inputs/shapes/shapes/8.png,10.,8.
