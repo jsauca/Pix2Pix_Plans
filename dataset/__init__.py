@@ -94,10 +94,13 @@ def get_dataset_test_nrj(args):
     gen_input = [line.split(',') for line in gen_input.readlines()]
     shapes = [[cv2.imread(input[0], cv2.IMREAD_GRAYSCALE)]
               for input in gen_input]
+    print(type(shapes))
     data_c = torch.from_numpy(
         np.array([float(input[1]) for input in gen_input])).unsqueeze(1)
     data_h = torch.from_numpy(
         np.array([float(input[2]) for input in gen_input])).unsqueeze(1)
+
+    print('type', shapes[0].dtype)
     print('example', type(shapes[0][0]), shapes[0][0].shape)
     print('concat', type(np.array(shapes)), np.array(shapes).shape)
     shapes = torch.from_numpy(np.array(shapes))
