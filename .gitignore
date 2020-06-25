@@ -147,3 +147,4 @@ dataset/images_bis/*
 
 rtv/rtv_outputs/*
 inputs/
+pytorch-frechet-inception-distance/outputs/*

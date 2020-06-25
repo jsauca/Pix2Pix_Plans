@@ -2,6 +2,7 @@ import json
 import torch
 import torchvision
 import cv2
+import os
 from torchvision import transforms
 import numpy as np
 use_cuda = torch.cuda.is_available()
@@ -92,19 +93,19 @@ def get_dataset_test(args):
 def get_dataset_test_nrj(args):
     gen_input = open(args.gen_input, 'r')
     gen_input = [line.split(',') for line in gen_input.readlines()]
-    shapes = [[cv2.imread(input[0], cv2.IMREAD_GRAYSCALE)]
+    gen_input = [input for input in gen_input if os.path.isfile(input[0])]
+    shapes = [cv2.imread(input[0], cv2.IMREAD_GRAYSCALE)
               for input in gen_input]
-    print(type(shapes))
+    shapes = [np.expand_dims(a, (0, 1)) for a in shapes]
+    shapes = np.concatenate(shapes, 0)
+    for idx, shape in enumerate(shapes):
+        print(shape.shape, gen_input[idx])
     data_c = torch.from_numpy(
         np.array([float(input[1]) for input in gen_input])).unsqueeze(1)
     data_h = torch.from_numpy(
         np.array([float(input[2]) for input in gen_input])).unsqueeze(1)
+    shapes = torch.from_numpy(shapes)
 
-    print('type', shapes[0].dtype)
-    print('example', type(shapes[0][0]), shapes[0][0].shape)
-    print('concat', type(np.array(shapes)), np.array(shapes).shape)
-    shapes = torch.from_numpy(np.array(shapes))
-    print(shapes.shape)
     shapes = torch.utils.data.TensorDataset(shapes)
 
     energy = torch.utils.data.TensorDataset(data_c, data_h)
