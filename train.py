@@ -23,4 +23,3 @@ for epoch in range(500):
     samples = trainer.test()
     trainer.save_samples(samples)
     trainer.show_samples(samples)
-    # trainer.show_animation()
