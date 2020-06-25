@@ -3,11 +3,11 @@
 ## Requirements
 Install requirements found in requirements.txt by running ```pip3 install -r requirements.txt```
 ## Dataset
-After creation of floorplans with data transformer, use complete_floorplans/process.ipynb to concatenate channels, put your plans, energy loads and shapes under dataset/images/ following the same structure compatible with Torchvision data loader.
+After creation of floorplans with data transformer(RTV transformer-Katam pngs), use complete_floorplans/process.ipynb to concatenate channels, put your plans, energy loads and shapes under dataset/images/ following the same structure compatible with Torchvision data loader.
 ## Training of Pix2Pix
 To train the Pix2pix run ```python3 train.py```
 Change the options for training wanted in options/parse.py, e.g. batch size, condtional or not, learning rate, version of generator ...
-The checkpoints for generator and discriminator, with samples generated are saved under temp/ . Import new checkpoints by modifying options and placing them under dcgan/checkpoints. 
+The checkpoints for generator and discriminator, with samples generated are saved under temp/ . Import new checkpoints by modifying options and placing them under pix2pix/checkpoints. 
 ## Prediction of Energy load from files 
 In energy_from_txt/ can be found two methods to extract and predict heating and cooling load for all files. To extract architecture parameters, train a Random Forest Regressor and predict new energy run ```text_extraction.ipynb``` 
 To convert text files into heatmaps and train a CNN to predict new energy loads, run ```python3 txt_energy_amn.py``` and ```python3 test.py``` to generate new heating and cooling. Change parameters accordingly.
