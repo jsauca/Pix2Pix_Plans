@@ -1,19 +1,11 @@
 *.pyc
-temp/*
-dataset/vectors/*
-dataset/vectors.zip
-#rtv_inputs/*
-rtv_outputs/*
-outputs/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-data/images64/*
 # C extensions
 *.so
-dataset/images/
-
 
 # Distribution / packaging
 .Python
@@ -132,19 +124,24 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-rtv/checkpoints/drn_d_54-0e0534ff.pth
-rtv/checkpoints/rtv.pth
-.DS_Store
-data/.DS_Store
+#rtv/checkpoints/drn_d_54-0e0534ff.pth
+#rtv/checkpoints/rtv.pth
 data/.DS_Store
 .DS_Store
-sample_11.png
-.DS_Store
-.DS_Store
-energy_from_txt/model
+
+temp/*
+dataset/vectors/*
+#rtv_inputs/*
+rtv_outputs/*
+outputs/*
+dataset/images/
+
 complete_floorplans/data_final_bis/*
 dataset/images_bis/*
 
 rtv/rtv_outputs/*
-inputs/
+pytorch-frechet-inception-distance/inputs/*
 pytorch-frechet-inception-distance/outputs/*
+dataset/vectors.zip
+rtv/checkpoints/drn_d_54-0e0534ff.pth
+rtv/checkpoints/rtv.pth
